@@ -19,7 +19,8 @@
 .timeline{position:relative}.timeline:before{content:'';position:absolute;left:9px;top:8px;bottom:8px;width:1px;background:var(--line)}.timeline-dot{position:absolute;left:-29px;top:26px;width:13px;height:13px;border-radius:99px;background:#0070ad;box-shadow:0 0 0 4px rgba(0,112,173,.12)}
 .skill{border:1px solid var(--line);border-radius:999px;padding:.38rem .7rem;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}.skill:hover{border-color:#12abdb;color:#0070ad;background:rgba(0,112,173,.06)}.dark .skill:hover{color:#80d2e8}.skill-learning{border-style:dashed}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}#command[hidden],#assistant[hidden]{display:none!important}
-.chat-bubble{max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:1rem;padding:.7rem .85rem;line-height:1.55}.chat-user{margin-left:auto;background:#0070ad;color:white;border-bottom-right-radius:.25rem}.chat-bot{background:#f4f4f5;color:#3f3f46;border-bottom-left-radius:.25rem}.dark .chat-bot{background:#27272a;color:#e4e4e7}.print-only{display:none}
+.chat-bubble{max-width:90%;overflow-wrap:anywhere;border-radius:1rem;padding:.7rem .85rem;line-height:1.55}.chat-user{margin-left:auto;background:#0070ad;color:white;border-bottom-right-radius:.25rem;white-space:pre-wrap}.chat-bot{background:#f4f4f5;color:#3f3f46;border-bottom-left-radius:.25rem}.dark .chat-bot{background:#27272a;color:#e4e4e7}.rich-text p+p{margin-top:.65rem}.rich-text h3{margin:.8rem 0 .35rem;font-weight:700;color:#005481}.dark .rich-text h3{color:#80d2e8}.rich-text ul,.rich-text ol{margin:.35rem 0 .65rem 1.25rem;list-style:disc}.rich-text ol{list-style:decimal}.rich-text li+li{margin-top:.2rem}.analysis-score{border-top:1px solid var(--line);margin-top:1rem;padding-top:1rem}.analysis-score-track{height:.7rem;overflow:hidden;border-radius:999px;background:rgba(148,163,184,.22)}.analysis-score-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#0070ad,#12abdb);transition:width .5s ease}.print-only{display:none}
+.score-proverb{display:flex;align-items:center;gap:.75rem;border:1px solid rgba(0,112,173,.28);border-left:4px solid #0070ad;border-radius:1rem;padding:1rem 1.1rem;background:linear-gradient(110deg,rgba(0,112,173,.12),rgba(18,171,219,.07) 58%,rgba(255,255,255,.82));color:#004064;font-size:1rem;font-weight:800;line-height:1.55;box-shadow:0 6px 20px rgba(0,84,129,.1)}.score-proverb:before{content:'✦';flex:none;display:grid;place-items:center;width:2rem;height:2rem;border-radius:.7rem;background:#0070ad;color:#fff;font-size:1rem}.dark .score-proverb{border-color:rgba(18,171,219,.42);background:linear-gradient(110deg,rgba(0,112,173,.28),rgba(18,171,219,.14) 58%,rgba(39,39,42,.9));color:#d8f1f8;box-shadow:0 8px 24px rgba(0,0,0,.2)}.dark .score-proverb:before{background:#12abdb;color:#082f49}
 .orbit-wrap{container-type:inline-size;position:relative;width:100%;max-width:440px;aspect-ratio:1/1;margin:0 auto}.orbit{position:absolute;inset:0}
 .orbit-track{position:absolute;left:50%;top:50%;pointer-events:none;transform:translate(-50%,-50%);border:1px dashed var(--line);border-radius:50%}.orbit-track.company-track{border-color:rgba(148,163,184,.32)}.orbit-track.used-track{border-color:rgba(18,171,219,.4);border-style:solid}.orbit-track.discover-track{border-color:rgba(141,107,255,.55);border-style:dashed}
 .orbit-ring{position:absolute;inset:0;pointer-events:none;animation:orbit-spin var(--dur,40s) linear infinite}.orbit-ring.rev{animation-direction:reverse}
@@ -394,7 +395,31 @@ function understand(q){
 const assistant=$('#assistant'),messages=$('#chatMessages'),chatInput=$('#chatInput');let chatStarted=false,busy=false;const chatHistory=[];
 $('#assistantSub').textContent=CONFIG.relayUrl?'IA Gemini \u00b7 vos messages sont transmis \u00e0 Google':'R\u00e9ponses v\u00e9rifi\u00e9es \u00e0 partir du CV';
 if(CONFIG.relayUrl){$('#offre .surface .mb-4 p').textContent='Avec Gemini, le texte de l\u2019offre est transmis \u00e0 Google pour analyse. N\u2019y collez aucune information personnelle ou confidentielle.';$('#analyzeJob').lastChild.textContent='Analyser avec Gemini'}
-function addBubble(text,who='bot'){const d=document.createElement('div');d.className='chat-bubble '+(who==='user'?'chat-user':'chat-bot');d.textContent=text;messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
+function appendFormattedInline(parent,text){
+ const token=/\*\*(.+?)\*\*|\*(.+?)\*/g;let cursor=0,match;
+ while((match=token.exec(text))){
+  if(match.index>cursor)parent.appendChild(document.createTextNode(text.slice(cursor,match.index)));
+  const element=document.createElement(match[1]?'strong':'em');element.textContent=match[1]||match[2];parent.appendChild(element);cursor=token.lastIndex
+ }
+ if(cursor<text.length)parent.appendChild(document.createTextNode(text.slice(cursor)))
+}
+function renderFormattedText(container,text){
+ container.replaceChildren();container.classList.add('rich-text');let list=null,listType='';
+ const closeList=()=>{list=null;listType=''};
+ String(text||'').split(/\r?\n/).forEach(line=>{
+  const value=line.trim();if(!value){closeList();return}
+  const item=value.match(/^([-*•]|[✅❌⚠️])\s+(.+)$/);
+  if(item){
+   const type='ul';
+   if(!list||listType!==type){closeList();list=document.createElement(type);listType=type;container.appendChild(list)}
+   const li=document.createElement('li');appendFormattedInline(li,item[2]);list.appendChild(li);return
+  }
+  closeList();
+  const heading=value.match(/^(?:#{1,3}\s+|\*\*)((?:\d+[.)]\s*)?[^*]+?)(?:\*\*)?:?$/);
+  const block=document.createElement(heading?'h3':'p');appendFormattedInline(block,heading?heading[1]:value);container.appendChild(block)
+ })
+}
+function addBubble(text,who='bot'){const d=document.createElement('div');d.className='chat-bubble '+(who==='user'?'chat-user':'chat-bot');if(who==='user')d.textContent=text;else renderFormattedText(d,text);messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
 function addTyping(){const d=document.createElement('div');d.className='chat-bubble chat-bot';d.setAttribute('aria-label','Réponse en cours');d.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
 function renderSuggestions(list){$('#suggestions').innerHTML=(list||SUGG_DEFAULT).slice(0,3).map(q=>`<button type="button" class="skill" data-q="${q}">${q}</button>`).join('')}
 function openAssistant(){assistant.hidden=false;document.body.classList.add('assistant-open');if(!chatStarted){chatStarted=true;addBubble(CONFIG.relayUrl?'Bonjour ! Je r\u00e9ponds \u00e0 vos questions sur le parcours de Mohammed avec Gemini, \u00e0 partir de son CV. Les messages envoy\u00e9s sont transmis \u00e0 Google. \u00c9vitez les informations personnelles ou confidentielles.':'Bonjour ! Posez-moi une question sur le parcours de Mohammed, ses outils, son r\u00f4le de Test Lead ou sa fa\u00e7on de travailler. Mes r\u00e9ponses viennent d\u2019informations v\u00e9rifi\u00e9es sur son CV.');renderSuggestions(SUGG_DEFAULT)}chatInput.focus()}
@@ -417,18 +442,81 @@ $('#assistantLaunch').addEventListener('click',()=>assistant.hidden?openAssistan
 $('#chatForm').addEventListener('submit',e=>{e.preventDefault();sendChat()});chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
 
 /* ---------- Analyse d'offre : Gemini via relais, mots-cles hors ligne ---------- */
+const SCORE_PROVERB='Chaque compétence se construit pas à pas — la volonté ouvre le chemin. 🚀';
+const OFFER_CRITERIA=[
+ {label:'Automatisation des tests',terms:['tests automatises','test automatise','automatisation des tests','automatiser les tests'],status:'confirmed',evidence:'UFT One : exécution et maintenance de scénarios automatisés.'},
+ {label:'Stratégie de test ou d’automatisation',terms:['strategie de test','strategie d automatisation','strategie d automatisation'],status:'confirmed',evidence:'Définit la stratégie de qualification et priorise les tests selon les risques.'},
+ {label:'Conception et exécution des tests',terms:['modeliser des tests','modelisation des tests','cas de test','tests fonctionnels','executer des tests'],status:'confirmed',evidence:'Conçoit et exécute des tests fonctionnels et de non-régression.'},
+ {label:'Maintenance des tests automatisés',terms:['maintenance des tests automatises','maintenir les tests automatises','stabiliser les tests automatises','optimiser les tests automatises'],status:'confirmed',evidence:'Maintient les scénarios automatisés sous UFT One.'},
+ {label:'Automatisation de bout en bout',terms:['de bout en bout','end to end'],status:'partial',evidence:'UFT One est utilisé en mission; une expérience de bout en bout n’est pas précisée.'},
+ {label:'Agile / Scrum',terms:['agile scrum','agile/scrum','scrum'],status:'unconfirmed',evidence:'Cette méthode n’est pas explicitement documentée dans le CV.'},
+ {label:'Jira',terms:['jira'],status:'confirmed',evidence:'Jira figure parmi les outils utilisés en mission.'},
+ {label:'Cypress',terms:['cypress'],status:'unconfirmed',evidence:'Cypress n’est pas mentionné parmi les compétences du CV.'},
+ {label:'TypeScript',terms:['typescript'],status:'unconfirmed',evidence:'TypeScript n’est pas mentionné parmi les compétences du CV.'},
+ {label:'Appium',terms:['appium'],status:'unconfirmed',evidence:'Appium n’est pas mentionné parmi les compétences du CV.'},
+ {label:'WebdriverIO',terms:['webdriverio','webdriver io'],status:'unconfirmed',evidence:'WebdriverIO n’est pas mentionné parmi les compétences du CV.'},
+ {label:'Tests mobiles',terms:['tests mobile','test mobile','scope mobile','applications mobiles'],status:'unconfirmed',evidence:'Une expérience de tests mobiles n’est pas explicitement documentée.'},
+ {label:'Langages associés à l’automatisation',terms:['langages de programmation associes','langages de programmation associe','langage de programmation associe','langage de programmation'],status:'partial',evidence:'Bash est utilisé pour des scripts; le CV ne confirme pas les langages associés aux outils mobiles/Web cités.'},
+ {label:'Certification ISTQB',terms:['istqb','ctfl'],status:'confirmed',evidence:'Certification ISTQB CTFL v4.0 obtenue le 28 septembre 2026.'},
+ {label:'Anglais niveau C1',terms:['c1 minimum','anglais c1','niveau c1'],status:'partial',evidence:'Le CV indique un anglais professionnel, sans niveau C1 attesté.'},
+ {label:'Coordination d’équipe',terms:['coordination d equipe','coordonner une equipe','equipe qa'],status:'confirmed',evidence:'Coordination de 4 à 7 testeurs sur plusieurs projets.'},
+ {label:'Compréhension des besoins utilisateurs',terms:['comprehension des besoins','besoins des utilisateurs','utilisateurs finaux'],status:'confirmed',evidence:'Analyse des spécifications fonctionnelles et des besoins métier.'}
+];
+const EXPLICIT_REQUIRED_CUES=['obligatoire','indispensable','requis','requise','minimum','a minima','tu as acquis','niveau de competence','savoir faire','maitrise des','maitrise les','maitriser','devra','doit','exige','necessaire','exigence','must have','required','essential'];
+const CONTEXTUAL_REQUIRED_CUES=['au quotidien','role principal','daily'];
+const DESIRED_CUES=['atout','apprecie','appreciee','souhaite','souhaitee','serait un plus','un plus','desirable','preferred'];
+function nearestCueDistance(context,term,cues){
+ let best=Infinity;
+ for(const cue of cues){let from=0,index;while((index=context.indexOf(cue,from))!==-1){best=Math.min(best,Math.abs(index+cue.length/2-term));from=index+cue.length}}
+ return best
+}
+function scoreOffer(text){
+ const source=norm(text),criteria=[],unweighted=[];
+ for(const criterion of OFFER_CRITERIA){
+  const term=criterion.terms.map(norm).find(value=>value&&source.includes(value));if(!term)continue;
+  const explicitMatches=[],contextualMatches=[],desiredMatches=[];let from=0,start;
+  while((start=source.indexOf(term,from))!==-1){
+   const contextStart=Math.max(0,start-140),context=source.slice(contextStart,Math.min(source.length,start+term.length+140)),center=start+term.length/2-contextStart;
+   const explicit=nearestCueDistance(context,center,EXPLICIT_REQUIRED_CUES),wish=nearestCueDistance(context,center,DESIRED_CUES),contextual=nearestCueDistance(context,center,CONTEXTUAL_REQUIRED_CUES);
+   if(Number.isFinite(explicit)&&explicit<wish)explicitMatches.push(explicit);
+   else if(Number.isFinite(wish))desiredMatches.push(wish);
+   else if(Number.isFinite(contextual))contextualMatches.push(contextual);
+   from=start+term.length
+  }
+  const priority=explicitMatches.length?'obligatoire':desiredMatches.length?'souhaité':contextualMatches.length?'obligatoire':null;
+  if(!priority){unweighted.push(criterion.label);continue}
+  const weight=priority==='obligatoire'?2:1;
+  criteria.push({...criterion,weight,priority:weight===2?'obligatoire':'souhaité'})
+ }
+ const total=criteria.reduce((sum,item)=>sum+item.weight,0),confirmed=criteria.reduce((sum,item)=>sum+(item.status==='confirmed'?item.weight:0),0);
+ return{criteria,unweighted,total,confirmed,percent:total?Math.round(confirmed/total*100):null}
+}
+function appendScoreBar(container,text){
+ const score=scoreOffer(text),section=document.createElement('section');section.className='analysis-score';section.setAttribute('aria-label','Couverture pondérée des exigences de l’offre');
+ const heading=document.createElement('div');heading.className='flex flex-wrap items-baseline justify-between gap-2';
+ const title=document.createElement('h3');title.className='font-bold text-zinc-900 dark:text-white';title.textContent='Couverture pondérée des critères détectés';
+ const value=document.createElement('strong');value.className='text-lg font-extrabold text-indigo-700 dark:text-indigo-300';value.textContent=score.percent===null?'Non calculable':`${score.percent} %`;heading.append(title,value);section.appendChild(heading);
+ const explanation=document.createElement('p');explanation.className='mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400';explanation.textContent='Calcul indicatif sur les critères reconnus et explicitement priorisés : obligatoire = 2 points, souhaité = 1 point. Seuls les critères confirmés dans le CV contribuent au résultat; « en formation », « à découvrir » ou non établis ne comptent pas comme confirmés. Ce pourcentage n’est ni une note globale ni une probabilité de recrutement.';section.appendChild(explanation);
+ if(score.percent!==null){const track=document.createElement('div');track.className='analysis-score-track mt-3';track.setAttribute('role','progressbar');track.setAttribute('aria-label','Couverture pondérée des critères reconnus');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',String(score.percent));const fill=document.createElement('div');fill.className='analysis-score-fill';fill.style.width=`${score.percent}%`;track.appendChild(fill);section.appendChild(track);
+  const proverb=document.createElement('p');proverb.className='score-proverb mt-3';proverb.textContent=SCORE_PROVERB;section.appendChild(proverb)
+ }else{const unavailable=document.createElement('p');unavailable.className='mt-3 text-sm text-amber-700 dark:text-amber-300';unavailable.textContent='Aucun critère détecté ne comporte de niveau de priorité explicite : aucun pourcentage n’est affiché.';section.appendChild(unavailable)}
+ const details=document.createElement('details');details.className='mt-3 text-xs text-zinc-600 dark:text-zinc-300';const summary=document.createElement('summary');summary.className='cursor-pointer font-semibold';summary.textContent=`Détail du calcul (${score.confirmed}/${score.total} points confirmés)`;details.appendChild(summary);
+ if(score.criteria.length){const list=document.createElement('ul');list.className='mt-2 space-y-1';for(const item of score.criteria){const row=document.createElement('li'),status=item.status==='confirmed'?'Confirmé':item.status==='partial'?'À confirmer':'Non établi';row.textContent=`${item.label} — ${item.priority} (${item.weight} pt${item.weight>1?'s':''}) : ${status}. ${item.evidence}`;list.appendChild(row)}details.appendChild(list)}
+ if(score.unweighted.length){const excluded=document.createElement('p');excluded.className='mt-2';excluded.textContent=`Critères reconnus mais exclus du calcul faute de priorité explicite : ${score.unweighted.join(', ')}.`;details.appendChild(excluded)}
+ section.appendChild(details);container.appendChild(section);return score
+}
 async function analyzeOffer(){
  const text=$('#jobText').value.trim(),out=$('#jobResult'),button=$('#analyzeJob');out.replaceChildren();
  if(text.length<30){out.innerHTML='<p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">Ajoutez une description un peu plus compl\u00e8te pour obtenir une comparaison utile.</p>';return}
  if(CONFIG.relayUrl&&text.length>30000){out.textContent='La description est trop longue. La limite est de 30 000 caract\u00e8res.';return}
  if(CONFIG.relayUrl){
   button.disabled=true;button.setAttribute('aria-busy','true');button.classList.add('opacity-60');out.textContent='Analyse Gemini en cours\u2026';
-  try{const reply=await askRelay({action:'analyze-offer',text});const result=document.createElement('div');result.className='rounded-2xl border border-slate-200 p-4 text-sm leading-7 text-zinc-800 dark:border-zinc-700 dark:text-zinc-200';result.style.whiteSpace='pre-wrap';result.textContent=reply;out.replaceChildren(result)}
+  try{const reply=await askRelay({action:'analyze-offer',text});const result=document.createElement('div');result.className='rounded-2xl border border-slate-200 p-4 text-sm leading-7 text-zinc-800 dark:border-zinc-700 dark:text-zinc-200';renderFormattedText(result,reply);appendScoreBar(result,text);out.replaceChildren(result)}
   catch(error){out.textContent='Impossible d\u2019analyser l\u2019offre avec Gemini pour le moment. R\u00e9essayez plus tard ou utilisez l\u2019analyse locale si le relais est d\u00e9sactiv\u00e9.';console.error('Offer analysis failed',error)}
   finally{button.disabled=false;button.removeAttribute('aria-busy');button.classList.remove('opacity-60')}
   return
  }
- const matches=DATA.qaFacts.filter(f=>f[1].test(text)),wrap=document.createElement('div');wrap.className='rounded-2xl border border-slate-200 p-4 dark:border-zinc-700';const title=document.createElement('h3');title.className='font-bold text-zinc-900 dark:text-white';title.textContent='Correspondances rep\u00e9r\u00e9es';wrap.appendChild(title);const info=document.createElement('p');info.className='mt-1 text-sm text-zinc-500';info.textContent=`${matches.length} domaine(s) d\u00e9tect\u00e9(s) par mots-cl\u00e9s sur ${DATA.qaFacts.length} domaines r\u00e9f\u00e9renc\u00e9s. Ce d\u00e9compte n\u2019est pas une note d\u2019ad\u00e9quation.`;wrap.appendChild(info);const chips=document.createElement('div');chips.className='mt-4 flex flex-wrap gap-2';matches.forEach(m=>{const s=document.createElement('span');s.className='rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300';s.textContent=m[0];chips.appendChild(s)});if(!matches.length){const p=document.createElement('p');p.className='mt-3 text-sm text-zinc-600 dark:text-zinc-400';p.textContent='Aucun des mots-cl\u00e9s r\u00e9f\u00e9renc\u00e9s n\u2019a \u00e9t\u00e9 d\u00e9tect\u00e9. Le vocabulaire de l\u2019annonce peut simplement \u00eatre diff\u00e9rent.';wrap.appendChild(p)}else wrap.appendChild(chips);const note=document.createElement('p');note.className='mt-4 text-xs leading-5 text-zinc-500';note.innerHTML='Pour creuser un point pr\u00e9cis, <a class="font-semibold text-indigo-600 underline dark:text-indigo-300" href="mailto:mkellabennani@gmail.com">\u00e9crivez-moi</a> ou posez la question \u00e0 l\u2019assistant.';wrap.appendChild(note);out.appendChild(wrap)
+ const matches=DATA.qaFacts.filter(f=>f[1].test(text)),wrap=document.createElement('div');wrap.className='rounded-2xl border border-slate-200 p-4 dark:border-zinc-700';const title=document.createElement('h3');title.className='font-bold text-zinc-900 dark:text-white';title.textContent='Correspondances rep\u00e9r\u00e9es';wrap.appendChild(title);const info=document.createElement('p');info.className='mt-1 text-sm text-zinc-500';info.textContent=`${matches.length} domaine(s) d\u00e9tect\u00e9(s) par mots-cl\u00e9s sur ${DATA.qaFacts.length} domaines r\u00e9f\u00e9renc\u00e9s. Ce d\u00e9compte n\u2019est pas une note d\u2019ad\u00e9quation.`;wrap.appendChild(info);const chips=document.createElement('div');chips.className='mt-4 flex flex-wrap gap-2';matches.forEach(m=>{const s=document.createElement('span');s.className='rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300';s.textContent=m[0];chips.appendChild(s)});if(!matches.length){const p=document.createElement('p');p.className='mt-3 text-sm text-zinc-600 dark:text-zinc-400';p.textContent='Aucun des mots-cl\u00e9s r\u00e9f\u00e9renc\u00e9s n\u2019a \u00e9t\u00e9 d\u00e9tect\u00e9. Le vocabulaire de l\u2019annonce peut simplement \u00eatre diff\u00e9rent.';wrap.appendChild(p)}else wrap.appendChild(chips);const note=document.createElement('p');note.className='mt-4 text-xs leading-5 text-zinc-500';note.innerHTML='Pour creuser un point pr\u00e9cis, <a class="font-semibold text-indigo-600 underline dark:text-indigo-300" href="mailto:mkellabennani@gmail.com">\u00e9crivez-moi</a> ou posez la question \u00e0 l\u2019assistant.';wrap.appendChild(note);appendScoreBar(wrap,text);out.appendChild(wrap)
 }
 $('#analyzeJob').addEventListener('click',analyzeOffer);$('#clearJob').addEventListener('click',()=>{$('#jobText').value='';$('#jobResult').replaceChildren()});document.querySelectorAll('[data-job]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#offre').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('#jobText').focus(),350)}));
 
