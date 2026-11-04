@@ -1,0 +1,6 @@
+name = "cv-gemini-relay"
+main = "index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://medbk1997.github.io,http://localhost:8000"
