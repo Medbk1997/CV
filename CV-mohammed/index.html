@@ -393,8 +393,8 @@ function understand(q){
 
 /* ---------- Assistant : interface, relais IA si configuré ---------- */
 const assistant=$('#assistant'),messages=$('#chatMessages'),chatInput=$('#chatInput');let chatStarted=false,busy=false;const chatHistory=[];
-$('#assistantSub').textContent=CONFIG.relayUrl?'IA Gemini \u00b7 vos messages sont transmis \u00e0 Google':'R\u00e9ponses v\u00e9rifi\u00e9es \u00e0 partir du CV';
-if(CONFIG.relayUrl){$('#offre .surface .mb-4 p').textContent='Avec Gemini, le texte de l\u2019offre est transmis \u00e0 Google pour analyse. N\u2019y collez aucune information personnelle ou confidentielle.';$('#analyzeJob').lastChild.textContent='Analyser avec Gemini'}
+$('#assistantSub').textContent=CONFIG.relayUrl?'Assistant IA \u00b7 vos messages sont transmis pour traitement':'R\u00e9ponses v\u00e9rifi\u00e9es \u00e0 partir du CV';
+if(CONFIG.relayUrl){$('#offre .surface .mb-4 p').textContent='Le texte de l\u2019offre est transmis au service d\u2019IA pour analyse. N\u2019y collez aucune information personnelle ou confidentielle.';$('#analyzeJob').lastChild.textContent='Analyser avec l\u2019IA'}
 function appendFormattedInline(parent,text){
  const token=/\*\*(.+?)\*\*|\*(.+?)\*/g;let cursor=0,match;
  while((match=token.exec(text))){
@@ -422,7 +422,7 @@ function renderFormattedText(container,text){
 function addBubble(text,who='bot'){const d=document.createElement('div');d.className='chat-bubble '+(who==='user'?'chat-user':'chat-bot');if(who==='user')d.textContent=text;else renderFormattedText(d,text);messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
 function addTyping(){const d=document.createElement('div');d.className='chat-bubble chat-bot';d.setAttribute('aria-label','Réponse en cours');d.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
 function renderSuggestions(list){$('#suggestions').innerHTML=(list||SUGG_DEFAULT).slice(0,3).map(q=>`<button type="button" class="skill" data-q="${q}">${q}</button>`).join('')}
-function openAssistant(){assistant.hidden=false;document.body.classList.add('assistant-open');if(!chatStarted){chatStarted=true;addBubble(CONFIG.relayUrl?'Bonjour ! Je r\u00e9ponds \u00e0 vos questions sur le parcours de Mohammed avec Gemini, \u00e0 partir de son CV. Les messages envoy\u00e9s sont transmis \u00e0 Google. \u00c9vitez les informations personnelles ou confidentielles.':'Bonjour ! Posez-moi une question sur le parcours de Mohammed, ses outils, son r\u00f4le de Test Lead ou sa fa\u00e7on de travailler. Mes r\u00e9ponses viennent d\u2019informations v\u00e9rifi\u00e9es sur son CV.');renderSuggestions(SUGG_DEFAULT)}chatInput.focus()}
+function openAssistant(){assistant.hidden=false;document.body.classList.add('assistant-open');if(!chatStarted){chatStarted=true;addBubble(CONFIG.relayUrl?'Bonjour ! Je suis l\u2019assistant IA du CV de Mohammed et je r\u00e9ponds \u00e0 vos questions \u00e0 partir de son parcours. Vos messages sont transmis pour traitement ; \u00e9vitez les informations personnelles ou confidentielles.':'Bonjour ! Posez-moi une question sur le parcours de Mohammed, ses outils, son r\u00f4le de Test Lead ou sa fa\u00e7on de travailler. Mes r\u00e9ponses viennent d\u2019informations v\u00e9rifi\u00e9es sur son CV.');renderSuggestions(SUGG_DEFAULT)}chatInput.focus()}
 function closeAssistant(){assistant.hidden=true;document.body.classList.remove('assistant-open')}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function askRelay(payload){const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),30000);try{const r=await fetch(CONFIG.relayUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal});const d=await r.json();if(!r.ok)throw new Error(d.error||'Le relais IA a refus\u00e9 la requ\u00eate.');if(typeof d.reply!=='string'||!d.reply.trim())throw new Error('Le relais IA n\u2019a pas renvoy\u00e9 de r\u00e9ponse.');return d.reply}finally{clearTimeout(t)}}
@@ -441,7 +441,7 @@ function askAssistant(q){openAssistant();chatInput.value=q;sendChat()}
 $('#assistantLaunch').addEventListener('click',()=>assistant.hidden?openAssistant():closeAssistant());$('#closeAssistant').addEventListener('click',closeAssistant);$('#askBtn2').addEventListener('click',openAssistant);
 $('#chatForm').addEventListener('submit',e=>{e.preventDefault();sendChat()});chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
 
-/* ---------- Analyse d'offre : Gemini via relais, mots-cles hors ligne ---------- */
+/* ---------- Analyse d'offre : relais IA ou mots-cles hors ligne ---------- */
 const SCORE_PROVERB='Chaque compétence se construit pas à pas — la volonté ouvre le chemin. 🚀';
 const OFFER_CRITERIA=[
  {label:'Automatisation des tests',terms:['tests automatises','test automatise','automatisation des tests','automatiser les tests'],status:'confirmed',evidence:'UFT One : exécution et maintenance de scénarios automatisés.'},
@@ -510,9 +510,9 @@ async function analyzeOffer(){
  if(text.length<30){out.innerHTML='<p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">Ajoutez une description un peu plus compl\u00e8te pour obtenir une comparaison utile.</p>';return}
  if(CONFIG.relayUrl&&text.length>30000){out.textContent='La description est trop longue. La limite est de 30 000 caract\u00e8res.';return}
  if(CONFIG.relayUrl){
-  button.disabled=true;button.setAttribute('aria-busy','true');button.classList.add('opacity-60');out.textContent='Analyse Gemini en cours\u2026';
+  button.disabled=true;button.setAttribute('aria-busy','true');button.classList.add('opacity-60');out.textContent='Analyse par l\u2019IA en cours\u2026';
   try{const reply=await askRelay({action:'analyze-offer',text});const result=document.createElement('div');result.className='rounded-2xl border border-slate-200 p-4 text-sm leading-7 text-zinc-800 dark:border-zinc-700 dark:text-zinc-200';renderFormattedText(result,reply);appendScoreBar(result,text);out.replaceChildren(result)}
-  catch(error){out.textContent='Impossible d\u2019analyser l\u2019offre avec Gemini pour le moment. R\u00e9essayez plus tard ou utilisez l\u2019analyse locale si le relais est d\u00e9sactiv\u00e9.';console.error('Offer analysis failed',error)}
+  catch(error){out.textContent='Impossible d\u2019analyser l\u2019offre avec l\u2019IA pour le moment. R\u00e9essayez plus tard ou utilisez l\u2019analyse locale si le relais est d\u00e9sactiv\u00e9.';console.error('Offer analysis failed',error)}
   finally{button.disabled=false;button.removeAttribute('aria-busy');button.classList.remove('opacity-60')}
   return
  }
