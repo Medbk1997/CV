@@ -4,13 +4,15 @@ const MAX_CHAT_MESSAGE_LENGTH = 600;
 const MAX_CHAT_MESSAGES = 8;
 
 const PROFILE_FACTS = `Profil de Mohammed KELLA BENNANI, selon son CV :
-- 3 ans d'expérience dans le test logiciel, dont 1 an comme Test Lead chez Sogeti France sur la mission URSSAF.
+- 3 ans d'expérience dans le test logiciel, dont 1 an en tant que Test Lead chez Sogeti France sur la mission URSSAF.
+- Depuis novembre 2026 : automaticien de tests Playwright chez Sogeti France sur une mission EDF : scénarios Web de bout en bout avec Playwright (Page Object Model, fixtures, jeux de données), exécution dans les pipelines CI/CD GitLab, analyse des rapports d'exécution et qualification des anomalies, revues des merge requests. Mission récente : ne pas présenter Playwright comme une expertise de plusieurs années.
 - Test Lead de décembre 2025 à novembre 2026 ; coordination de 4 à 7 testeurs sur plusieurs projets.
 - Expériences précédentes : QA Engineer et automaticien de tests sur la mission URSSAF.
 - Activités : stratégie et exécution de tests, suivi des anomalies, Go/No-Go, reporting qualité, SQL, tests d'API et scripts Bash.
-- Outils mentionnés : UFT One, HP ALM, Jira, Redmine, Postman, PostgreSQL, Bash, GitLab et GitHub.
+- Outils mentionnés : Playwright, UFT One, HP ALM, Oracle, Jira, Redmine, Postman, PostgreSQL, Bash, GitLab et GitHub.
 - HP ALM est utilisé pour les exigences et le plan de test, l’exécution des campagnes (Test Lab), le suivi des anomalies, les tableaux de bord et les rapports.
-- Certifié ISTQB CTFL v4.0. Formation Playwright en cours (2026-2027) ; Playwright n'est pas présenté comme une expertise confirmée.
+- Certifié ISTQB CTFL v4.0. Formation Playwright (2026-2027).
+- Langues : français et arabe (langues maternelles), anglais intermédiaire (B1).
 - Basé à Lyon.`;
 
 const SYSTEM_INSTRUCTION = `${PROFILE_FACTS}

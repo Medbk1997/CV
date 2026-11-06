@@ -157,6 +157,26 @@ test.describe('galaxie des outils', () => {
     await expect(pause).toHaveText('Mettre en pause');
   });
 
+  test('Playwright est présenté comme un outil de mission (EDF)', async ({ page }) => {
+    await expect(page.locator('#gxStage .gx-node[data-id="playwright"]')).not.toHaveClass(/discover/);
+    await page.locator('#gxStage .gx-node[data-id="playwright"]').dispatchEvent('click');
+    await expect(page.locator('#gxDetail')).toContainText('Mission EDF');
+  });
+
+  test('la vue simple remplace la galaxie et le choix est mémorisé', async ({ page }) => {
+    await expect(page.locator('#galaxy')).toBeVisible();
+    await expect(page.locator('#gxSimple')).toBeHidden();
+    await page.getByRole('button', { name: 'Vue simple' }).click();
+    await expect(page.locator('#gxSimple')).toBeVisible();
+    await expect(page.locator('#galaxy')).toBeHidden();
+    await expect(page.locator('#gxSimple .vs-stage')).toHaveCount(5);
+    await expect(page.locator('#gxSimple .vs-stage').nth(1)).toContainText('Playwright');
+    await page.reload();
+    await expect(page.locator('#gxSimple')).toBeVisible();
+    await page.getByRole('button', { name: 'Galaxie' }).click();
+    await expect(page.locator('#galaxy')).toBeVisible();
+  });
+
   test('« Demander à l’assistant » depuis une fiche', async ({ page }) => {
     await page.locator('#gxStage .gx-node[data-id="jira"]').dispatchEvent('click');
     await page.locator('#gxDetail .gx-ask').click();

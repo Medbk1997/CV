@@ -12,6 +12,7 @@ Maquettes interactives qui ont mené au design actuel du portfolio, dans l’ord
 | `orbites.html` | 4 premières pistes pour la section outils : orbite 3D, cycle QA en anneaux, constellation, bandes défilantes |
 | `creations-outils.html` | 4 créations suivantes : sphère 3D, galaxie 3D, radar technologique, pipeline de recette |
 | `galaxie-3-versions.html` | 3 versions de la galaxie avec ALM au centre et liens sourcés ; la version « Flux colorés » est intégrée au portfolio |
+| `vue-simple-outils.html` | 3 propositions de « Vue simple » avec logos, en alternative à la galaxie |
 
 ## Archives (`archives/`)
 
