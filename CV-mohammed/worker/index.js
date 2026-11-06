@@ -9,6 +9,7 @@ const PROFILE_FACTS = `Profil de Mohammed KELLA BENNANI, selon son CV :
 - Expériences précédentes : QA Engineer et automaticien de tests sur la mission URSSAF.
 - Activités : stratégie et exécution de tests, suivi des anomalies, Go/No-Go, reporting qualité, SQL, tests d'API et scripts Bash.
 - Outils mentionnés : UFT One, HP ALM, Jira, Redmine, Postman, PostgreSQL, Bash, GitLab et GitHub.
+- HP ALM est utilisé pour les exigences et le plan de test, l’exécution des campagnes (Test Lab), le suivi des anomalies, les tableaux de bord et les rapports.
 - Certifié ISTQB CTFL v4.0. Formation Playwright en cours (2026-2027) ; Playwright n'est pas présenté comme une expertise confirmée.
 - Basé à Lyon.`;
 

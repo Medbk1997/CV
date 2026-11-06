@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galaxie 3D — 3 versions</title>
+<link rel="stylesheet" href="../../assets/css/fonts.css">
+<style>
+:root{color-scheme:light;--ink:#2b0a3d;--text:#1c1326;--muted:#5b516b;--line:#e4e0ea;--soft:#f6f2f9;--accent:#8a5cb0}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;font-family:Ubuntu,Arial,sans-serif;color:var(--text)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.top{position:sticky;top:0;z-index:3000;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+@media(max-width:700px){.top{position:static}}
+.top h1{margin:0;font-size:17px;color:var(--ink)}
+.top nav{display:flex;gap:6px;flex-wrap:wrap}
+.pill,.btn{font:600 14px Ubuntu,Arial,sans-serif;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+:focus-visible{outline:3px solid #c3a9d9;outline-offset:3px}
+.intro{max-width:1160px;margin:0 auto;padding:26px 20px 0;color:var(--muted);line-height:1.6}
+.intro b{color:var(--ink)}
+.sources{max-width:1160px;margin:14px auto 0;padding:0 20px}
+.sources details{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--soft);font-size:14px;line-height:1.6}
+.sources summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.sources a{color:var(--ink)}
+section.proto{max-width:1160px;margin:0 auto;padding:44px 20px 28px;border-bottom:1px solid var(--line)}
+.head{display:flex;gap:14px;align-items:flex-start;margin-bottom:8px}
+.num{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+h2{margin:0;font-size:26px;color:var(--ink)}
+h2 small{font-size:14px;color:var(--accent);font-weight:500}
+.desc{margin:6px 0 0;color:var(--muted);line-height:1.55;max-width:800px}
+.pc{display:flex;flex-wrap:wrap;gap:8px 24px;margin:12px 0 18px 54px;font-size:14px;color:var(--muted)}
+.pc span b{color:var(--ink)}
+.area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:24px;align-items:start}
+@media(max-width:860px){.area{grid-template-columns:minmax(0,1fr)}.pc{margin-left:0}}
+.demo{position:relative;border-radius:24px;overflow:hidden;border:1px solid #2a1d3b;background:radial-gradient(120% 90% at 50% 45%,#2a1240 0%,#140920 55%,#0b0612 100%);color:#efe7f5}
+.gal{position:relative;width:100%;aspect-ratio:4/3;min-height:300px;max-height:580px;touch-action:pan-y;user-select:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.badge-mission{position:absolute;left:14px;top:12px;z-index:2500;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 12px 5px 6px;font-size:12px;color:#efe7f5}
+.badge-mission img{width:22px;height:22px;object-fit:contain;background:#fff;border-radius:50%;padding:2px}
+.node{position:absolute;left:0;top:0;padding:0;border-radius:50%;background:#fff;border:1px solid #ddd5e6;box-shadow:0 6px 18px rgba(0,0,0,.35);display:grid;place-items:center;cursor:pointer;font:600 12px 'JetBrains Mono',monospace;transition:box-shadow .25s;will-change:transform}
+.node svg,.node img{width:62%;height:62%;object-fit:contain;pointer-events:none}
+.node span{pointer-events:none}
+.node.discover{border:2px dashed #fbbf24}
+.node.sun{box-shadow:0 0 0 6px rgba(192,132,252,.35),0 0 60px rgba(192,132,252,.75)}
+.node.sel{box-shadow:0 0 0 3px #fff,0 0 0 6px #c084fc}
+.station{position:absolute;left:0;top:0;border:1px solid rgba(255,255,255,.28);background:rgba(20,9,32,.78);color:#fff;border-radius:12px;padding:5px 10px;font:600 12px Ubuntu,Arial,sans-serif;cursor:pointer;white-space:nowrap;text-align:center;line-height:1.25;transition:opacity .3s,background .3s}
+.station small{display:block;font-weight:500;font-size:10.5px;color:#d9c8ec}
+@media(max-width:520px){.station{font-size:10.5px;padding:3px 8px;border-radius:9px}.station small{display:none}.badge-mission{font-size:11px}}
+.station.on{background:#efe7f5;color:var(--ink);border-color:#fff}.station.on small{color:#4f2470}
+.tip{position:absolute;z-index:2600;max-width:260px;background:#fff;color:var(--text);border-radius:12px;padding:8px 11px;font-size:13px;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none;opacity:0;transition:opacity .15s}
+.tip.on{opacity:1}
+.bar{padding:12px 16px 16px;position:relative;z-index:2500}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:#d9cce6;margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{display:inline-block;width:22px;height:0;border-top:3px solid}
+.sw.dash{border-top-style:dashed}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.dbtn{font:600 12.5px Ubuntu,Arial,sans-serif;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.dbtn[aria-pressed="true"]{background:#fff;color:var(--ink);border-color:#fff}
+.dbtn .dot{width:10px;height:10px;border-radius:50%}
+.story{min-height:92px}
+.story b{display:block;font-size:18px;color:#fff;margin-bottom:4px}
+.story p{margin:0;color:#e7dcf1;line-height:1.5;font-size:15px}
+.steps{display:flex;gap:6px;margin:12px 0}
+.steps button{width:28px;height:8px;border-radius:4px;border:0;background:rgba(255,255,255,.2);cursor:pointer;padding:0}
+.steps button[aria-current="step"]{background:#c084fc}
+.detail{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff;min-height:120px}
+.detail .top2{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.detail .d-logo{flex-shrink:0;width:48px;height:48px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;font:600 12px 'JetBrains Mono',monospace}
+.detail .d-logo svg,.detail .d-logo img{width:62%;height:62%;object-fit:contain}
+.detail p{margin:0 0 6px;line-height:1.5;font-size:14px}
+.d-title{font-weight:700;font-size:17px!important;color:var(--ink);margin:0!important}
+.d-cat{color:var(--muted);margin:0!important}
+.badge{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:2px;background:#ecfdf3;color:#05603a}
+.badge.discover{background:#fff7e6;color:#8a4b00}.badge.training{background:#eef2ff;color:#3730a3}
+.rel{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rel li{font-size:13px;line-height:1.45;padding:7px 9px;border-radius:10px;background:var(--soft);border-left:3px solid var(--c,#c084fc)}
+.rel li i{font-style:normal;font-size:11px;font-weight:700;color:var(--muted);display:block}
+.hint{color:var(--muted);font-size:14px;margin:0}
+footer{max-width:1160px;margin:0 auto;padding:24px 20px 60px;color:var(--muted);font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Galaxie 3D — 3 versions plus claires</h1>
+  <nav aria-label="Versions"><a class="pill" href="#v1">1 · Soleil ALM</a><a class="pill" href="#v2">2 · Visite guidée</a><a class="pill" href="#v3">3 · Flux colorés</a></nav>
+  <button class="btn" id="pauseAll" type="button" aria-pressed="false">Mettre en pause les animations</button>
+</div>
+<p class="intro">Nouveauté dans les trois versions : <b>HP ALM est au centre</b>, comme le « soleil » de la galaxie, parce qu’il intervient de la conception aux rapports. Chaque lien a un sens précis : <b>survolez une ligne</b> (ordinateur) ou <b>cliquez sur un logo</b> pour lire ce qu’elle représente. Les liens d’intégration s’appuient sur la documentation des éditeurs (sources ci-dessous).</p>
+<div class="sources"><details><summary>Sources des liens (documentation éditeurs)</summary>
+<ul>
+<li>ALM : modules Exigences, Plan de test, Test Lab, Defects et tableaux de bord — <a href="https://admhelp.microfocus.com/alm/best_practices/Workflows_for_Validated_Applications.pdf">OpenText ALM, Workflows for Validated Applications</a></li>
+<li>UFT One lancé depuis le Test Lab d’ALM, résultats stockés dans ALM — <a href="https://admhelp.microfocus.com/uft/en/23.4-24.2/UFT_Help/Content/UFT_Tools/Bamboo_Plugin/run_tests_from_ALM_lab.htm">OpenText UFT One Help</a></li>
+<li>Synchronisation des anomalies ALM ⇄ Jira — <a href="https://admhelp.microfocus.com/connect/en/26.1-26.2/Online/Content/Topics/use-case-alm-jira.htm">OpenText Connect : use-case ALM / Jira</a></li>
+<li>Référence d’une anomalie Redmine depuis GitLab — <a href="https://docs.gitlab.com/user/project/integrations/redmine">GitLab Docs : Redmine</a></li>
+<li>Playwright sur GitHub Actions à chaque push / pull request — <a href="https://playwright.dev/docs/ci-intro">playwright.dev : CI</a> ; image Docker officielle — <a href="https://playwright.dev/docs/docker">playwright.dev : Docker</a></li>
+<li>k6 dans GitHub Actions (setup-k6-action, run-k6-action) — <a href="https://grafana.com/blog/performance-testing-with-grafana-k6-and-github-actions/">Grafana : k6 et GitHub Actions</a></li>
+<li>Newman, exécution des collections Postman en intégration continue — <a href="https://github.com/postmanlabs/newman">postmanlabs/newman</a></li>
+</ul></details></div>
+
+<section class="proto" id="v1">
+  <div class="head"><span class="num">1</span><div><h2>Soleil ALM <small>— tout part de l’outil de pilotage</small></h2><p class="desc">ALM au centre ; ses modules rayonnent vers les étapes du cycle (exigences, Test Lab, anomalies, rapports). Les autres outils gravitent autour de l’étape où ils servent. Une légende indique la nature de chaque lien.</p></div></div>
+  <p class="pc"><span><b>+</b> le plus fidèle à votre façon de travailler</span><span><b>+</b> légende explicite</span><span><b>−</b> beaucoup d’informations à la fois</span></p>
+  <div class="area">
+    <div class="demo"><div class="gal" id="g1"><canvas aria-hidden="true"></canvas><div class="tip"></div></div>
+      <div class="bar"><div class="legend" id="leg1"></div><div class="row" id="ctl1"></div></div></div>
+    <div class="detail" id="d1"><p class="hint">Cliquez sur un logo ou une étape.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="v2">
+  <div class="head"><span class="num">2</span><div><h2>Visite guidée <small>— la plus facile à comprendre</small></h2><p class="desc">La caméra raconte votre cycle en 7 étapes, une phrase à la fois : elle zoome sur l’étape, n’allume que les liens utiles et explique ce qui se passe. Lecture automatique ou boutons Précédent / Suivant.</p></div></div>
+  <p class="pc"><span><b>+</b> compréhensible sans aucune explication</span><span><b>+</b> idéal pour un recruteur non technique</span><span><b>−</b> moins d’exploration libre</span></p>
+  <div class="area">
+    <div class="demo"><div class="gal" id="g2"><canvas aria-hidden="true"></canvas><div class="tip"></div></div>
+      <div class="bar"><div class="story" id="story" aria-live="polite"></div><div class="steps" id="dots" role="group" aria-label="Étapes de la visite"></div><div class="row"><button class="dbtn" type="button" id="prev">← Précédent</button><button class="dbtn" type="button" id="play" aria-pressed="true">Pause</button><button class="dbtn" type="button" id="next">Suivant →</button></div></div></div>
+    <div class="detail" id="d2"><p class="hint">Suivez la visite, ou cliquez sur un logo.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="v3">
+  <div class="head"><span class="num">3</span><div><h2>Flux colorés <small>— un flux = une couleur</small></h2><p class="desc">Les liens sont regroupés en cinq flux de travail, chacun avec sa couleur et ses particules : campagne de test, données &amp; API, anomalies, livraison, et « demain » (CI/CD à découvrir). Allumez ou éteignez chaque flux.</p></div></div>
+  <p class="pc"><span><b>+</b> on lit la galaxie par thème</span><span><b>+</b> montre aussi votre trajectoire (« demain »)</span><span><b>−</b> nécessite de lire la légende des couleurs</span></p>
+  <div class="area">
+    <div class="demo"><div class="gal" id="g3"><canvas aria-hidden="true"></canvas><div class="tip"></div></div>
+      <div class="bar"><div class="row" id="flows" role="group" aria-label="Flux affichés"></div></div></div>
+    <div class="detail" id="d3"><p class="hint">Choisissez un flux, puis cliquez sur un logo.</p></div>
+  </div>
+</section>
+<footer>Prototypes de travail, rien n’est encore intégré au portfolio. Les liens « usage en mission » reprennent les descriptions déjà présentes sur votre portfolio ; les liens « intégration documentée » existent chez les éditeurs mais <b>ne veulent pas dire que vous les avez tous utilisés en mission</b> — dites-moi lesquels sont vrais pour vous et j’ajusterai. Le rôle d’ALM a été élargi selon vos indications (conception, exécution, anomalies, rapports).</footer>
+
+<script>
+const D = {"TOOLS_USED":[{"n":"PostgreSQL","h":"4169E1","p":"M23.5594 14.7228a.5269.5269 0 0 0-.0563-.1191c-.139-.2632-.4768-.3418-1.0074-.2321-1.6533.3411-2.2935.1312-2.5256-.0191 1.342-2.0482 2.445-4.522 3.0411-6.8297.2714-1.0507.7982-3.5237.1222-4.7316a1.5641 1.5641 0 0 0-.1509-.235C21.6931.9086 19.8007.0248 17.5099.0005c-1.4947-.0158-2.7705.3461-3.1161.4794a9.449 9.449 0 0 0-.5159-.0816 8.044 8.044 0 0 0-1.3114-.1278c-1.1822-.0184-2.2038.2642-3.0498.8406-.8573-.3211-4.7888-1.645-7.2219.0788C.9359 2.1526.3086 3.8733.4302 6.3043c.0409.818.5069 3.334 1.2423 5.7436.4598 1.5065.9387 2.7019 1.4334 3.582.553.9942 1.1259 1.5933 1.7143 1.7895.4474.1491 1.1327.1441 1.8581-.7279.8012-.9635 1.5903-1.8258 1.9446-2.2069.4351.2355.9064.3625 1.39.3772a.0569.0569 0 0 0 .0004.0041 11.0312 11.0312 0 0 0-.2472.3054c-.3389.4302-.4094.5197-1.5002.7443-.3102.064-1.1344.2339-1.1464.8115-.0025.1224.0329.2309.0919.3268.2269.4231.9216.6097 1.015.6331 1.3345.3335 2.5044.092 3.3714-.6787-.017 2.231.0775 4.4174.3454 5.0874.2212.5529.7618 1.9045 2.4692 1.9043.2505 0 .5263-.0291.8296-.0941 1.7819-.3821 2.5557-1.1696 2.855-2.9059.1503-.8707.4016-2.8753.5388-4.1012.0169-.0703.0357-.1207.057-.1362.0007-.0005.0697-.0471.4272.0307a.3673.3673 0 0 0 .0443.0068l.2539.0223.0149.001c.8468.0384 1.9114-.1426 2.5312-.4308.6438-.2988 1.8057-1.0323 1.5951-1.6698zM2.371 11.8765c-.7435-2.4358-1.1779-4.8851-1.2123-5.5719-.1086-2.1714.4171-3.6829 1.5623-4.4927 1.8367-1.2986 4.8398-.5408 6.108-.13-.0032.0032-.0066.0061-.0098.0094-2.0238 2.044-1.9758 5.536-1.9708 5.7495-.0002.0823.0066.1989.0162.3593.0348.5873.0996 1.6804-.0735 2.9184-.1609 1.1504.1937 2.2764.9728 3.0892.0806.0841.1648.1631.2518.2374-.3468.3714-1.1004 1.1926-1.9025 2.1576-.5677.6825-.9597.5517-1.0886.5087-.3919-.1307-.813-.5871-1.2381-1.3223-.4796-.839-.9635-2.0317-1.4155-3.5126zm6.0072 5.0871c-.1711-.0428-.3271-.1132-.4322-.1772.0889-.0394.2374-.0902.4833-.1409 1.2833-.2641 1.4815-.4506 1.9143-1.0002.0992-.126.2116-.2687.3673-.4426a.3549.3549 0 0 0 .0737-.1298c.1708-.1513.2724-.1099.4369-.0417.156.0646.3078.26.3695.4752.0291.1016.0619.2945-.0452.4444-.9043 1.2658-2.2216 1.2494-3.1676 1.0128zm2.094-3.988-.0525.141c-.133.3566-.2567.6881-.3334 1.003-.6674-.0021-1.3168-.2872-1.8105-.8024-.6279-.6551-.9131-1.5664-.7825-2.5004.1828-1.3079.1153-2.4468.079-3.0586-.005-.0857-.0095-.1607-.0122-.2199.2957-.2621 1.6659-.9962 2.6429-.7724.4459.1022.7176.4057.8305.928.5846 2.7038.0774 3.8307-.3302 4.7363-.084.1866-.1633.3629-.2311.5454zm7.3637 4.5725c-.0169.1768-.0358.376-.0618.5959l-.146.4383a.3547.3547 0 0 0-.0182.1077c-.0059.4747-.054.6489-.115.8693-.0634.2292-.1353.4891-.1794 1.0575-.11 1.4143-.8782 2.2267-2.4172 2.5565-1.5155.3251-1.7843-.4968-2.0212-1.2217a6.5824 6.5824 0 0 0-.0769-.2266c-.2154-.5858-.1911-1.4119-.1574-2.5551.0165-.5612-.0249-1.9013-.3302-2.6462.0044-.2932.0106-.5909.019-.8918a.3529.3529 0 0 0-.0153-.1126 1.4927 1.4927 0 0 0-.0439-.208c-.1226-.4283-.4213-.7866-.7797-.9351-.1424-.059-.4038-.1672-.7178-.0869.067-.276.1831-.5875.309-.9249l.0529-.142c.0595-.16.134-.3257.213-.5012.4265-.9476 1.0106-2.2453.3766-5.1772-.2374-1.0981-1.0304-1.6343-2.2324-1.5098-.7207.0746-1.3799.3654-1.7088.5321a5.6716 5.6716 0 0 0-.1958.1041c.0918-1.1064.4386-3.1741 1.7357-4.4823a4.0306 4.0306 0 0 1 .3033-.276.3532.3532 0 0 0 .1447-.0644c.7524-.5706 1.6945-.8506 2.802-.8325.4091.0067.8017.0339 1.1742.081 1.939.3544 3.2439 1.4468 4.0359 2.3827.8143.9623 1.2552 1.9315 1.4312 2.4543-1.3232-.1346-2.2234.1268-2.6797.779-.9926 1.4189.543 4.1729 1.2811 5.4964.1353.2426.2522.4522.2889.5413.2403.5825.5515.9713.7787 1.2552.0696.087.1372.1714.1885.245-.4008.1155-1.1208.3825-1.0552 1.717-.0123.1563-.0423.4469-.0834.8148-.0461.2077-.0702.4603-.0994.7662zm.8905-1.6211c-.0405-.8316.2691-.9185.5967-1.0105a2.8566 2.8566 0 0 0 .135-.0406 1.202 1.202 0 0 0 .1342.103c.5703.3765 1.5823.4213 3.0068.1344-.2016.1769-.5189.3994-.9533.6011-.4098.1903-1.0957.333-1.7473.3636-.7197.0336-1.0859-.0807-1.1721-.151zm.5695-9.2712c-.0059.3508-.0542.6692-.1054 1.0017-.055.3576-.112.7274-.1264 1.1762-.0142.4368.0404.8909.0932 1.3301.1066.887.216 1.8003-.2075 2.7014a3.5272 3.5272 0 0 1-.1876-.3856c-.0527-.1276-.1669-.3326-.3251-.6162-.6156-1.1041-2.0574-3.6896-1.3193-4.7446.3795-.5427 1.3408-.5661 2.1781-.463zm.2284 7.0137a12.3762 12.3762 0 0 0-.0853-.1074l-.0355-.0444c.7262-1.1995.5842-2.3862.4578-3.4385-.0519-.4318-.1009-.8396-.0885-1.2226.0129-.4061.0666-.7543.1185-1.0911.0639-.415.1288-.8443.1109-1.3505.0134-.0531.0188-.1158.0118-.1902-.0457-.4855-.5999-1.938-1.7294-3.253-.6076-.7073-1.4896-1.4972-2.6889-2.0395.5251-.1066 1.2328-.2035 2.0244-.1859 2.0515.0456 3.6746.8135 4.8242 2.2824a.908.908 0 0 1 .0667.1002c.7231 1.3556-.2762 6.2751-2.9867 10.5405zm-8.8166-6.1162c-.025.1794-.3089.4225-.6211.4225a.5821.5821 0 0 1-.0809-.0056c-.1873-.026-.3765-.144-.5059-.3156-.0458-.0605-.1203-.178-.1055-.2844.0055-.0401.0261-.0985.0925-.1488.1182-.0894.3518-.1226.6096-.0867.3163.0441.6426.1938.6113.4186zm7.9305-.4114c.0111.0792-.049.201-.1531.3102-.0683.0717-.212.1961-.4079.2232a.5456.5456 0 0 1-.075.0052c-.2935 0-.5414-.2344-.5607-.3717-.024-.1765.2641-.3106.5611-.352.297-.0414.6111.0088.6356.1851z"},{"n":"Apache Kafka","h":"231F20","p":"M9.71 2.136a1.43 1.43 0 0 0-2.047 0h-.007a1.48 1.48 0 0 0-.421 1.042c0 .41.161.777.422 1.039l.007.007c.257.264.616.426 1.019.426.404 0 .766-.162 1.027-.426l.003-.007c.261-.262.421-.629.421-1.039 0-.408-.159-.777-.421-1.042H9.71zM8.683 22.295c.404 0 .766-.167 1.027-.429l.003-.008c.261-.261.421-.631.421-1.036 0-.41-.159-.778-.421-1.044H9.71a1.42 1.42 0 0 0-1.027-.432 1.4 1.4 0 0 0-1.02.432h-.007c-.26.266-.422.634-.422 1.044 0 .406.161.775.422 1.036l.007.008c.258.262.617.429 1.02.429zm7.89-4.462c.359-.096.683-.33.882-.684l.027-.052a1.47 1.47 0 0 0 .114-1.067 1.454 1.454 0 0 0-.675-.896l-.021-.014a1.425 1.425 0 0 0-1.078-.132c-.36.091-.684.335-.881.686-.2.349-.241.75-.146 1.119.099.363.33.691.675.896h.002c.346.203.737.239 1.101.144zm-6.405-7.342a2.083 2.083 0 0 0-1.485-.627c-.58 0-1.103.242-1.482.627-.378.385-.612.916-.612 1.507s.233 1.124.612 1.514a2.08 2.08 0 0 0 2.967 0c.379-.39.612-.923.612-1.514s-.233-1.122-.612-1.507zm-.835-2.51c.843.141 1.6.552 2.178 1.144h.004c.092.093.182.196.265.299l1.446-.851a3.176 3.176 0 0 1-.047-1.808 3.149 3.149 0 0 1 1.456-1.926l.025-.016a3.062 3.062 0 0 1 2.345-.306c.77.21 1.465.721 1.898 1.482v.002c.431.757.518 1.626.313 2.408a3.145 3.145 0 0 1-1.456 1.928l-.198.118h-.02a3.095 3.095 0 0 1-2.154.201 3.127 3.127 0 0 1-1.514-.944l-1.444.848a4.162 4.162 0 0 1 0 2.879l1.444.846c.413-.47.939-.789 1.514-.944a3.041 3.041 0 0 1 2.371.319l.048.023v.002a3.17 3.17 0 0 1 1.408 1.906 3.215 3.215 0 0 1-.313 2.405l-.026.053-.003-.005a3.147 3.147 0 0 1-1.867 1.436 3.096 3.096 0 0 1-2.371-.318v-.006a3.156 3.156 0 0 1-1.456-1.927 3.175 3.175 0 0 1 .047-1.805l-1.446-.848a3.905 3.905 0 0 1-.265.294l-.004.005a3.938 3.938 0 0 1-2.178 1.138v1.699a3.09 3.09 0 0 1 1.56.862l.002.004c.565.572.914 1.368.914 2.243 0 .873-.35 1.664-.914 2.239l-.002.009a3.1 3.1 0 0 1-2.21.931 3.1 3.1 0 0 1-2.206-.93h-.002v-.009a3.186 3.186 0 0 1-.916-2.239c0-.875.35-1.672.916-2.243v-.004h.002a3.1 3.1 0 0 1 1.558-.862v-1.699a3.926 3.926 0 0 1-2.176-1.138l-.006-.005a4.098 4.098 0 0 1-1.173-2.874c0-1.122.452-2.136 1.173-2.872h.006a3.947 3.947 0 0 1 2.176-1.144V6.289a3.137 3.137 0 0 1-1.558-.864h-.002v-.004a3.192 3.192 0 0 1-.916-2.243c0-.871.35-1.669.916-2.243l.002-.002A3.084 3.084 0 0 1 8.683 0c.861 0 1.641.355 2.21.932v.002h.002c.565.574.914 1.372.914 2.243 0 .876-.35 1.667-.914 2.243l-.002.005a3.142 3.142 0 0 1-1.56.864v1.692zm8.121-1.129l-.012-.019a1.452 1.452 0 0 0-.87-.668 1.43 1.43 0 0 0-1.103.146h.002c-.347.2-.58.529-.677.896-.095.365-.054.768.146 1.119l.007.009c.2.347.519.579.874.673.357.103.755.059 1.098-.144l.019-.009a1.47 1.47 0 0 0 .657-.885 1.493 1.493 0 0 0-.141-1.118"},{"n":"Postman","h":"FF6C37","p":"M13.527.099C6.955-.744.942 3.9.099 10.473c-.843 6.572 3.8 12.584 10.373 13.428 6.573.843 12.587-3.801 13.428-10.374C24.744 6.955 20.101.943 13.527.099zm2.471 7.485a.855.855 0 0 0-.593.25l-4.453 4.453-.307-.307-.643-.643c4.389-4.376 5.18-4.418 5.996-3.753zm-4.863 4.861l4.44-4.44a.62.62 0 1 1 .847.903l-4.699 4.125-.588-.588zm.33.694l-1.1.238a.06.06 0 0 1-.067-.032.06.06 0 0 1 .01-.073l.645-.645.512.512zm-2.803-.459l1.172-1.172.879.878-1.979.426a.074.074 0 0 1-.085-.039.072.072 0 0 1 .013-.093zm-3.646 6.058a.076.076 0 0 1-.069-.083.077.077 0 0 1 .022-.046h.002l.946-.946 1.222 1.222-2.123-.147zm2.425-1.256a.228.228 0 0 0-.117.256l.203.865a.125.125 0 0 1-.211.117h-.003l-.934-.934-.294-.295 3.762-3.758 1.82-.393.874.874c-1.255 1.102-2.971 2.201-5.1 3.268zm5.279-3.428h-.002l-.839-.839 4.699-4.125a.952.952 0 0 0 .119-.127c-.148 1.345-2.029 3.245-3.977 5.091zm3.657-6.46l-.003-.002a1.822 1.822 0 0 1 2.459-2.684l-1.61 1.613a.119.119 0 0 0 0 .169l1.247 1.247a1.817 1.817 0 0 1-2.093-.343zm2.578 0a1.714 1.714 0 0 1-.271.218h-.001l-1.207-1.207 1.533-1.533c.661.72.637 1.832-.054 2.522zM18.855 6.05a.143.143 0 0 0-.053.157.416.416 0 0 1-.053.45.14.14 0 0 0 .023.197.141.141 0 0 0 .084.03.14.14 0 0 0 .106-.05.691.691 0 0 0 .087-.751.138.138 0 0 0-.194-.033z"},{"n":"Jira","h":"0052CC","p":"M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0Z"},{"n":"Redmine","h":"B32024","p":"m1.092 15.088c.789.243 4.098 1.005 4.098 1.005.198.061.139.21.139.21-.228 1.798-.178 3.17-.178 3.644 0 .21-.153.18-.153.18h-4.83c-.209 0-.164-.19-.164-.19.04-.599.212-2.303.878-4.746 0 0 .033-.157.21-.103zm21.816 0c-.789.243-4.098 1.005-4.098 1.005-.198.061-.139.21-.139.21.228 1.798.178 3.17.178 3.644 0 .21.153.18.153.18h4.83c.21 0 .164-.19.164-.19-.04-.599-.212-2.303-.878-4.746 0 0-.034-.157-.21-.103zm-1.929-5.354-3.448 1.667c-.164.063-.082.212-.082.212.476 1.134.766 2.091.99 3.251.038.194.169.132.169.132l3.879-1.684s.116-.044.068-.193c-.172-.531-1.05-2.649-1.402-3.341 0 0-.062-.105-.174-.044zm-17.958 0 3.448 1.667c.164.063.082.212.082.212-.476 1.134-.766 2.091-.991 3.251-.037.194-.169.132-.169.132l-3.878-1.684s-.116-.044-.068-.193c.172-.531 1.05-2.649 1.402-3.341 0 0 .062-.105.174-.044zm4.085-4.368 2.302 2.681c.099.128-.032.222-.032.222-.923.498-1.59 1.25-2.161 2.111-.114.17-.236.046-.236.046l-2.917-2.184s-.126-.074-.016-.22c.854-1.134 1.63-1.934 2.871-2.689 0 0 .094-.089.189.033zm9.788 0-2.302 2.681c-.099.128.032.222.032.222.923.498 1.59 1.25 2.161 2.111.114.17.236.046.236.046l2.917-2.184s.126-.074.016-.22c-.854-1.134-1.63-1.934-2.871-2.689 0 0-.094-.089-.189.033zm-4.894 2.295c.388 0 1.105.037 1.444.093.177.03.221-.088.221-.088l1.449-3.028s.097-.114-.106-.188c-1.082-.396-1.657-.578-3.008-.578-1.335 0-1.926.182-3.008.578-.203.074-.106.188-.106.188l1.449 3.028s.044.118.221.088c.339-.056 1.056-.093 1.444-.093z"},{"n":"GitHub","h":"181717","p":"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"},{"n":"GitLab","h":"FC6D26","p":"m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z"},{"n":"Bash","h":"4EAA25","p":"M21.038,4.9l-7.577-4.498C13.009,0.134,12.505,0,12,0c-0.505,0-1.009,0.134-1.462,0.403L2.961,4.9 C2.057,5.437,1.5,6.429,1.5,7.503v8.995c0,1.073,0.557,2.066,1.462,2.603l7.577,4.497C10.991,23.866,11.495,24,12,24 c0.505,0,1.009-0.134,1.461-0.402l7.577-4.497c0.904-0.537,1.462-1.529,1.462-2.603V7.503C22.5,6.429,21.943,5.437,21.038,4.9z M15.17,18.946l0.013,0.646c0.001,0.078-0.05,0.167-0.111,0.198l-0.383,0.22c-0.061,0.031-0.111-0.007-0.112-0.085L14.57,19.29 c-0.328,0.136-0.66,0.169-0.872,0.084c-0.04-0.016-0.057-0.075-0.041-0.142l0.139-0.584c0.011-0.046,0.036-0.092,0.069-0.121 c0.012-0.011,0.024-0.02,0.036-0.026c0.022-0.011,0.043-0.014,0.062-0.006c0.229,0.077,0.521,0.041,0.802-0.101 c0.357-0.181,0.596-0.545,0.592-0.907c-0.003-0.328-0.181-0.465-0.613-0.468c-0.55,0.001-1.064-0.107-1.072-0.917 c-0.007-0.667,0.34-1.361,0.889-1.8l-0.007-0.652c-0.001-0.08,0.048-0.168,0.111-0.2l0.37-0.236 c0.061-0.031,0.111,0.007,0.112,0.087l0.006,0.653c0.273-0.109,0.511-0.138,0.726-0.088c0.047,0.012,0.067,0.076,0.048,0.151 l-0.144,0.578c-0.011,0.044-0.036,0.088-0.065,0.116c-0.012,0.012-0.025,0.021-0.038,0.028c-0.019,0.01-0.038,0.013-0.057,0.009 c-0.098-0.022-0.332-0.073-0.699,0.113c-0.385,0.195-0.52,0.53-0.517,0.778c0.003,0.297,0.155,0.387,0.681,0.396 c0.7,0.012,1.003,0.318,1.01,1.023C16.105,17.747,15.736,18.491,15.17,18.946z M19.143,17.859c0,0.06-0.008,0.116-0.058,0.145 l-1.916,1.164c-0.05,0.029-0.09,0.004-0.09-0.056v-0.494c0-0.06,0.037-0.093,0.087-0.122l1.887-1.129 c0.05-0.029,0.09-0.004,0.09,0.056V17.859z M20.459,6.797l-7.168,4.427c-0.894,0.523-1.553,1.109-1.553,2.187v8.833 c0,0.645,0.26,1.063,0.66,1.184c-0.131,0.023-0.264,0.039-0.398,0.039c-0.42,0-0.833-0.114-1.197-0.33L3.226,18.64 c-0.741-0.44-1.201-1.261-1.201-2.142V7.503c0-0.881,0.46-1.702,1.201-2.142l7.577-4.498c0.363-0.216,0.777-0.33,1.197-0.33 c0.419,0,0.833,0.114,1.197,0.33l7.577,4.498c0.624,0.371,1.046,1.013,1.164,1.732C21.686,6.557,21.12,6.411,20.459,6.797z"},{"n":"HP ALM","h":"0B6BCB","m":"ALM"},{"n":"UFT One","h":"E8590C","m":"UFT"}],"TOOLS_DISCOVER":[{"n":"Playwright","h":"2EAD33","m":"PW"},{"n":"Docker","h":"2496ED","p":"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"},{"n":"k6","h":"7D64FF","p":"M24 23.646H0L7.99 6.603l4.813 3.538L19.08.354Zm-8.8-3.681h.052a2.292 2.292 0 0 0 1.593-.64 2.088 2.088 0 0 0 .685-1.576 1.912 1.912 0 0 0-.66-1.511 2.008 2.008 0 0 0-1.37-.59h-.04a.716.716 0 0 0-.199.027l1.267-1.883-1.01-.705-.477.705-1.22 1.864c-.21.31-.386.582-.495.77-.112.2-.21.41-.29.625a1.942 1.942 0 0 0-.138.719 2.086 2.086 0 0 0 .676 1.558c.422.411.989.641 1.578.64Zm-5.365-2.027 1.398 1.978h1.496l-1.645-2.295 1.46-2.029-.97-.671-.427.565-1.314 1.853v-3.725l-1.31-1.068v7.37h1.31v-1.98Zm5.367.792a.963.963 0 1 1 0-1.927h.009a.941.941 0 0 1 .679.29.897.897 0 0 1 .29.668.978.978 0 0 1-.977.967Z"},{"n":"GitHub Actions","h":"2088FF","p":"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"}],"STAGES":[["besoin","Besoin et conception"],["exec","Exécution"],["donnees","Données et batchs"],["anomalies","Suivi des anomalies"],["livraison","Livraison"]],"MISSION":[{"id":"sogeti","kind":"company","n":"Sogeti","cat":"Employeur","st":[],"txt":"Mon employeur. Expérience chez Sogeti France sur la mission URSSAF en QA, automatisation de tests et pilotage des campagnes.","q":"Quelles sont ses missions chez Sogeti ?"},{"id":"urssaf","kind":"company","n":"URSSAF","cat":"Client de la mission","st":["besoin","exec","donnees","anomalies","livraison"],"txt":"Client de la mission : qualification fonctionnelle et technique, coordination des tests et reporting qualité.","q":"Quelles sont ses missions chez l’URSSAF ?"},{"id":"alm","kind":"used","n":"HP ALM","cat":"Gestion des tests","st":["besoin","anomalies"],"txt":"Gestion des tests et des anomalies."},{"id":"uft","kind":"used","n":"UFT One","cat":"Automatisation","st":["exec"],"txt":"Écriture et exécution de scripts d’automatisation fonctionnelle."},{"id":"postman","kind":"used","n":"Postman","cat":"Tests d’API","st":["exec"],"txt":"Tests d’API réguliers, en complément des tests fonctionnels."},{"id":"sql","kind":"used","n":"PostgreSQL","cat":"Données","st":["exec","donnees"],"txt":"Requêtes SQL pour vérifier les données et trouver des jeux de données de test."},{"id":"kafka","kind":"used","n":"Apache Kafka","cat":"Données","st":["donnees"],"txt":"Fait partie de l’environnement technique de mes tests."},{"id":"bash","kind":"used","n":"Bash","cat":"Scripts","st":["donnees"],"txt":"Scripts Bash pour analyser les traitements batch et les résultats de recette."},{"id":"jira","kind":"used","n":"Jira","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"redmine","kind":"used","n":"Redmine","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"github","kind":"used","n":"GitHub","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"gitlab","kind":"used","n":"GitLab","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"playwright","kind":"discover","n":"Playwright","cat":"Automatisation moderne","st":["exec"],"txt":"En formation : j’en ai les bases et je le pratique guidé par l’IA."},{"id":"docker","kind":"discover","n":"Docker","cat":"Environnements","st":["exec","livraison"],"txt":"À découvrir, pour des environnements de test reproductibles."},{"id":"k6","kind":"discover","n":"k6","cat":"Performance","st":["exec"],"txt":"À découvrir, pour les tests de performance."},{"id":"actions","kind":"discover","n":"GitHub Actions","cat":"Livraison continue","st":["livraison"],"txt":"À découvrir, pour lancer les tests automatiquement à chaque livraison."}]};
+const TOOLS = D.TOOLS_USED.concat(D.TOOLS_DISCOVER);
+const ITEMS = D.MISSION;
+const STAGES = D.STAGES;
+const $ = (s, r = document) => r.querySelector(s);
+const byId = (id) => ITEMS.find((m) => m.id === id);
+Object.assign(byId('alm'), { cat: 'Pilotage des tests', st: ['besoin', 'exec', 'anomalies', 'livraison'], txt: 'Exigences et plan de test, exécution des campagnes (Test Lab), suivi des anomalies, tableaux de bord et rapports.' });
+const ORDER = STAGES.map((s) => s[0]);
+const stageName = (s) => (STAGES.find((x) => x[0] === s) || [s, s])[1];
+const SUB = { besoin: 'ALM · exigences, plan de test', exec: 'ALM · Test Lab', donnees: 'base, flux, batchs', anomalies: 'ALM · Defects', livraison: 'ALM · rapports, Go/No-Go' };
+const CLUSTER = { exec: ['uft', 'postman', 'playwright', 'k6'], donnees: ['sql', 'kafka', 'bash'], anomalies: ['jira', 'redmine'], livraison: ['github', 'gitlab', 'docker', 'actions'], besoin: [] };
+const TYPES = { module: ['Module ALM', '#c084fc', 3.2, false], usage: ['Usage en mission', 'rgba(217,204,235,.75)', 1.4, false], integ: ['Intégration documentée', '#ffffff', 2.4, false], futur: ['À découvrir', '#fbbf24', 1.8, true] };
+const FLOWS = { campagne: ['Campagne de test', '#c084fc'], donnees: ['Données & API', '#67e8f9'], anomalies: ['Anomalies', '#fb7185'], livraison: ['Livraison', '#86efac'], cicd: ['Demain : CI/CD', '#fbbf24'] };
+const L = [
+  ['alm', '@besoin', 'module', 'campagne', 'ALM — Exigences et Plan de test : chaque cas de test est rattaché à son exigence (couverture).'],
+  ['alm', '@exec', 'module', 'campagne', 'ALM — Test Lab : les campagnes sont planifiées, exécutées et leurs résultats enregistrés.'],
+  ['alm', '@anomalies', 'module', 'anomalies', 'ALM — Defects : les anomalies trouvées pendant les tests y sont suivies.'],
+  ['alm', '@livraison', 'module', 'campagne', 'ALM — tableaux de bord et rapports : l’avancement et la qualité alimentent la décision Go/No-Go.'],
+  ['uft', 'alm', 'integ', 'campagne', 'UFT One ⇄ ALM : les tests UFT One sont stockés dans ALM, lancés depuis le Test Lab, et les résultats y sont enregistrés.'],
+  ['uft', '@exec', 'usage', 'campagne', 'UFT One : écriture et exécution de scripts d’automatisation fonctionnelle.'],
+  ['postman', '@exec', 'usage', 'donnees', 'Postman : tests d’API réguliers, en complément des tests fonctionnels.'],
+  ['sql', '@exec', 'usage', 'donnees', 'PostgreSQL : requêtes SQL pour vérifier les données et trouver des jeux de données de test.'],
+  ['sql', '@donnees', 'usage', 'donnees', 'PostgreSQL : contrôles SQL et validation des échanges entre applications.'],
+  ['kafka', '@donnees', 'usage', 'donnees', 'Apache Kafka : fait partie de l’environnement technique des tests.'],
+  ['bash', '@donnees', 'usage', 'donnees', 'Bash : scripts pour analyser les traitements batch et les résultats de recette.'],
+  ['@donnees', '@exec', 'usage', 'donnees', 'Les données et les traitements batch sont vérifiés pendant l’exécution des tests.'],
+  ['jira', '@anomalies', 'usage', 'anomalies', 'Jira : création et suivi des anomalies.'],
+  ['redmine', '@anomalies', 'usage', 'anomalies', 'Redmine : création et suivi des anomalies.'],
+  ['jira', 'alm', 'integ', 'anomalies', 'ALM ⇄ Jira : les anomalies peuvent être synchronisées dans les deux sens (OpenText Connect ou outil tiers).'],
+  ['github', '@livraison', 'usage', 'livraison', 'GitHub : versioning dans la chaîne de livraison.'],
+  ['gitlab', '@livraison', 'usage', 'livraison', 'GitLab : versioning dans la chaîne de livraison.'],
+  ['gitlab', 'redmine', 'integ', 'livraison', 'GitLab → Redmine : un numéro d’anomalie cité dans un commit devient un lien vers Redmine.'],
+  ['playwright', '@exec', 'futur', 'cicd', 'Playwright (en formation) : automatisation des tests Web.'],
+  ['k6', '@exec', 'futur', 'cicd', 'k6 (à découvrir) : tests de performance.'],
+  ['playwright', 'actions', 'futur', 'cicd', 'Playwright → GitHub Actions : le workflow officiel lance les tests à chaque push et pull request.'],
+  ['playwright', 'docker', 'futur', 'cicd', 'Playwright → Docker : une image officielle contient les navigateurs et leurs dépendances.'],
+  ['k6', 'actions', 'futur', 'cicd', 'k6 → GitHub Actions : actions officielles pour lancer les tests de performance.'],
+  ['postman', 'actions', 'futur', 'cicd', 'Postman → CI : Newman exécute les collections en ligne de commande dans un pipeline.'],
+  ['actions', '@livraison', 'futur', 'cicd', 'GitHub Actions (à découvrir) : lancer les tests automatiquement à chaque livraison.'],
+  ['docker', '@livraison', 'futur', 'cicd', 'Docker (à découvrir) : des environnements de test reproductibles.']
+];
+let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const pauseBtn = $('#pauseAll');
+function syncPause() { pauseBtn.setAttribute('aria-pressed', String(paused)); pauseBtn.textContent = paused ? 'Relancer les animations' : 'Mettre en pause les animations'; }
+pauseBtn.addEventListener('click', () => { paused = !paused; syncPause(); });
+syncPause();
+function logoHTML(it) {
+  if (it.kind === 'company') return `<img src="../../assets/logos/${it.id}.png" alt="">`;
+  const t = TOOLS.find((x) => x.n === it.n);
+  if (t && t.p) return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#${t.h}" d="${t.p}"/></svg>`;
+  return `<span class="mono" style="color:#${t ? t.h : '2b0a3d'}">${t ? t.m : it.n.slice(0, 3)}</span>`;
+}
+const kindOf = (it) => it.id === 'playwright' ? ['training', 'En formation'] : it.kind === 'discover' ? ['discover', 'À découvrir'] : ['used', 'En mission'];
+const nameOf = (id) => id[0] === '@' ? stageName(id.slice(1)) : byId(id).n;
+function showDetail(panel, id, color) {
+  const it = byId(id), [k, label] = kindOf(it);
+  const rel = L.filter((l) => l[0] === id || l[1] === id);
+  panel.innerHTML = `<div class="top2"><div class="d-logo">${logoHTML(it)}</div><div><p class="d-title">${it.n}<span class="badge ${k}">${label}</span></p><p class="d-cat">${it.cat}</p></div></div><p>${it.txt}</p>${rel.length ? `<ul class="rel">${rel.map((l) => `<li style="--c:${color(l)}"><i>${TYPES[l[2]][0]} · ${FLOWS[l[3]][0]}</i>${l[4]}</li>`).join('')}</ul>` : ''}`;
+}
+// matrices
+const mul = (a, b) => a.map((r) => [0, 1, 2].map((j) => r[0] * b[0][j] + r[1] * b[1][j] + r[2] * b[2][j]));
+const rotY = (t) => { const c = Math.cos(t), s = Math.sin(t); return [[c, 0, s], [0, 1, 0], [-s, 0, c]]; };
+const rotX = (t) => { const c = Math.cos(t), s = Math.sin(t); return [[1, 0, 0], [0, c, -s], [0, s, c]]; };
+const apply = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2], m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2], m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]];
+const visible = new Set();
+const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id)), { rootMargin: '80px' });
+// positions 3D
+const hash = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return ((h >>> 0) % 1000) / 1000; };
+const POS = { alm: [0, 0, 0] };
+ORDER.forEach((s, si) => {
+  const th = si / ORDER.length * Math.PI * 2 - Math.PI / 2, C = [Math.cos(th) * 1.25, 0, Math.sin(th) * 1.25];
+  POS['@' + s] = C; POS['@' + s].th = th;
+  CLUSTER[s].forEach((id, k, arr) => { const a = k / arr.length * Math.PI * 2 + si * 1.3, r = .36; POS[id] = [C[0] + Math.cos(a) * r, (hash(id) - .5) * .45 - .05, C[2] + Math.sin(a) * r]; });
+});
+const STARS = Array.from({ length: 170 }, (_, i) => { const u = hash('s' + i) * 2 - 1, t = hash('t' + i) * Math.PI * 2, r = 2.4 + hash('r' + i) * 2.6, q = Math.sqrt(1 - u * u); return [Math.cos(t) * q * r, u * r * .6, Math.sin(t) * q * r, .35 + hash('b' + i) * .65]; });
+
+function createGalaxy(root, opt) {
+  const cv = $('canvas', root), tip = $('.tip', root);
+  root.insertAdjacentHTML('beforeend', `<div class="badge-mission"><img src="../../assets/logos/urssaf.png" alt=""><img src="../../assets/logos/sogeti.png" alt="">Mission URSSAF · Sogeti</div>`);
+  const ids = ['alm'].concat(Object.values(CLUSTER).flat());
+  const nodes = ids.map((id) => {
+    const it = byId(id), b = document.createElement('button');
+    b.type = 'button'; b.className = 'node' + (it.kind === 'discover' ? ' discover' : '') + (id === 'alm' ? ' sun' : ''); b.dataset.id = id; b.title = it.n;
+    b.setAttribute('aria-label', `${it.n} — ${it.cat}`); b.innerHTML = logoHTML(it); root.appendChild(b);
+    b.addEventListener('click', () => { root.querySelectorAll('.sel').forEach((x) => x.classList.remove('sel')); b.classList.add('sel'); opt.onNode && opt.onNode(id); });
+    b.addEventListener('mouseenter', () => S.hover = id); b.addEventListener('mouseleave', () => S.hover = null);
+    b.addEventListener('focus', () => S.hover = id); b.addEventListener('blur', () => S.hover = null);
+    return { id, b };
+  });
+  const stations = ORDER.map((s, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'station';
+    b.innerHTML = `${i + 1} · ${stageName(s)}<small>${SUB[s]}</small>`; root.appendChild(b);
+    b.addEventListener('click', () => opt.onStation && opt.onStation(i));
+    return b;
+  });
+  const parts = L.map((l, i) => ({ i, t: hash('p' + i), sp: .16 + hash('q' + i) * .14 }));
+  const S = { yaw: -.35, yawT: null, pitch: .6, zoom: 1, zoomT: 1, T: [0, 0, 0], TT: [0, 0, 0], focus: -1, hover: null, hi: null, mx: 0, my: 0, segs: [] };
+  root.addEventListener('pointermove', (e) => {
+    const r = root.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    if (e.pointerType !== 'touch') { S.mx = x / r.width - .5; S.my = y / r.height - .5; }
+    let best = null, bd = 9;
+    for (const s of S.segs) { const dx = s[2] - s[0], dy = s[3] - s[1], len = dx * dx + dy * dy || 1, t = clamp(((x - s[0]) * dx + (y - s[1]) * dy) / len, 0, 1), d = Math.hypot(x - (s[0] + dx * t), y - (s[1] + dy * t)); if (d < bd) { bd = d; best = s[4]; } }
+    if (best !== null && !e.target.closest('.node,.station')) { tip.textContent = L[best][4]; tip.style.left = clamp(x + 14, 8, r.width - 270) + 'px'; tip.style.top = clamp(y + 14, 8, r.height - 80) + 'px'; tip.classList.add('on'); S.hoverLink = best; }
+    else { tip.classList.remove('on'); S.hoverLink = null; }
+  });
+  root.addEventListener('pointerleave', () => { S.mx = S.my = 0; tip.classList.remove('on'); S.hoverLink = null; });
+  const api = {
+    focus(i) {
+      S.focus = i; stations.forEach((b, k) => b.classList.toggle('on', k === i));
+      if (i < 0) { S.TT = [0, 0, 0]; S.zoomT = 1; S.yawT = null; return; }
+      const C = POS['@' + ORDER[i]]; S.TT = [C[0] * .85, 0, C[2] * .85]; S.zoomT = 1.5;
+      let target = -Math.PI / 2 - C.th; while (target - S.yaw > Math.PI) target -= 2 * Math.PI; while (target - S.yaw < -Math.PI) target += 2 * Math.PI; S.yawT = target;
+    },
+    highlight(set) { S.hi = set; }
+  };
+  io.observe(root.closest('section'));
+  const sec = root.closest('section').id;
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (visible.has(sec)) {
+      if (!paused) { if (S.yawT === null) S.yaw += dt * .1; parts.forEach((p) => p.t = (p.t + dt * p.sp) % 1); }
+      if (S.yawT !== null) S.yaw += (S.yawT - S.yaw) * .06;
+      S.zoom += (S.zoomT - S.zoom) * .06; for (let k = 0; k < 3; k++) S.T[k] += (S.TT[k] - S.T[k]) * .06;
+      const dpr = Math.min(2, devicePixelRatio || 1), w = root.clientWidth, h = root.clientHeight;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+      const cx = w / 2, cy = h * .54, SC = Math.min(w, h * 1.4) * .27 * S.zoom, F = 3.4;
+      const M = mul(rotX(S.pitch + S.my * .22), rotY(S.yaw + S.mx * .45));
+      const proj = (v) => { const r = apply(M, [v[0] - S.T[0], v[1] - S.T[1], v[2] - S.T[2]]), f = F / (F - r[2]); return [cx + r[0] * SC * f, cy + r[1] * SC * f, f, r[2]]; };
+      STARS.forEach((s) => { const p = proj(s); if (p[2] <= 0) return; g.fillStyle = `rgba(239,231,245,${(s[3] * .65 * clamp((p[3] + 4) / 6, .15, 1)).toFixed(3)})`; g.fillRect(p[0], p[1], 1.3 * p[2], 1.3 * p[2]); });
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 96; i++) { const a = i / 96 * Math.PI * 2, p = proj([Math.cos(a) * 1.25, 0, Math.sin(a) * 1.25]); g.fillStyle = `rgba(138,92,176,${(.05 + .1 * (p[3] + 1) / 2).toFixed(3)})`; g.beginPath(); g.arc(p[0], p[1], 1.5, 0, 7); g.fill(); }
+      const sun = proj(POS.alm), sg = g.createRadialGradient(sun[0], sun[1], 0, sun[0], sun[1], SC * .7 * sun[2]); sg.addColorStop(0, 'rgba(255,240,255,.55)'); sg.addColorStop(.25, 'rgba(192,132,252,.35)'); sg.addColorStop(1, 'rgba(192,132,252,0)'); g.fillStyle = sg; g.beginPath(); g.arc(sun[0], sun[1], SC * .7 * sun[2], 0, 7); g.fill();
+      ORDER.forEach((s, i) => { const p = proj(POS['@' + s]), rr = SC * .5 * p[2], gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], rr); gr.addColorStop(0, `rgba(160,127,192,${S.focus === i ? .34 : .16})`); gr.addColorStop(1, 'rgba(160,127,192,0)'); g.fillStyle = gr; g.beginPath(); g.arc(p[0], p[1], rr, 0, 7); g.fill(); g.fillStyle = 'rgba(239,231,245,.9)'; g.beginPath(); g.arc(p[0], p[1], 4 * p[2], 0, 7); g.fill(); });
+      S.segs = [];
+      const shown = (i) => opt.shown ? opt.shown(L[i]) : true;
+      const isHi = (i) => { const l = L[i]; if (S.hoverLink === i) return true; if (S.hover) return l[0] === S.hover || l[1] === S.hover; return S.hi ? S.hi.has(i) : (opt.baseHi ? opt.baseHi(l) : true); };
+      L.forEach((l, i) => {
+        if (!shown(i)) return;
+        const A = proj(POS[l[0]]), B = proj(POS[l[1]]), hi = isHi(i), [, , wdt, dash] = TYPES[l[2]], col = opt.color(l);
+        g.globalAlpha = hi ? .95 : .14; g.strokeStyle = col; g.lineWidth = wdt * (hi && (S.hover || S.hoverLink === i) ? 1.4 : 1); g.setLineDash(dash ? [6, 6] : []);
+        g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(B[0], B[1]); g.stroke(); g.setLineDash([]);
+        S.segs.push([A[0], A[1], B[0], B[1], i]);
+      });
+      g.globalAlpha = 1;
+      parts.forEach((p) => {
+        if (!shown(p.i) || !isHi(p.i)) return;
+        const l = L[p.i], A = POS[l[0]], B = POS[l[1]], v = [A[0] + (B[0] - A[0]) * p.t, A[1] + (B[1] - A[1]) * p.t, A[2] + (B[2] - A[2]) * p.t], q = proj(v), r = (l[2] === 'module' ? 5 : 3.6) * q[2];
+        const gr = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], r * 2.4); gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.35, opt.color(l)); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.beginPath(); g.arc(q[0], q[1], r * 2.4, 0, 7); g.fill();
+      });
+      g.restore();
+      const ns = clamp(Math.min(w, h) * .078, 28, 50), active = new Set();
+      L.forEach((l, i) => { if (shown(i) && isHi(i)) { active.add(l[0]); active.add(l[1]); } });
+      nodes.forEach((n) => {
+        const q = proj(POS[n.id]), st = n.b.style, s = n.id === 'alm' ? ns * 1.5 : ns, dim = !active.has(n.id);
+        st.width = st.height = s + 'px'; st.fontSize = s * .28 + 'px';
+        st.transform = `translate(${q[0] - s / 2}px,${q[1] - s / 2}px) scale(${q[2].toFixed(3)})`;
+        st.zIndex = String(1000 + Math.round(q[3] * 100)); st.opacity = (dim ? .25 : clamp(.5 + .5 * (q[3] + 1) / 2, .5, 1)).toFixed(2);
+      });
+      stations.forEach((b, i) => {
+        const q = proj(POS['@' + ORDER[i]]), st = b.style, on = active.has('@' + ORDER[i]) || S.focus === i;
+        const dx = q[0] - sun[0], dy = q[1] - sun[1], dl = Math.hypot(dx, dy) || 1, push = SC * .62 * q[2], px = clamp(q[0] + dx / dl * push - b.offsetWidth / 2, 4, w - b.offsetWidth - 4), py = clamp(q[1] + dy / dl * push - b.offsetHeight / 2, 40, h - b.offsetHeight - 4); st.transform = `translate(${px}px,${py}px)`; st.zIndex = '500'; st.opacity = on ? '1' : '.45';
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return api;
+}
+
+/* ---------- Version 1 : Soleil ALM ---------- */
+(function () {
+  const panel = $('#d1'), typeColor = (l) => TYPES[l[2]][1];
+  const gx = createGalaxy($('#g1'), { color: typeColor, baseHi: (l) => l[2] !== 'futur', onNode: (id) => showDetail(panel, id, typeColor), onStation: (i) => { gx.focus(i); btns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i + 1))); } });
+  $('#leg1').innerHTML = Object.values(TYPES).map(([n, c, , d]) => `<span><i class="sw${d ? ' dash' : ''}" style="border-color:${c}"></i>${n}</span>`).join('');
+  const ctl = $('#ctl1');
+  const mk = (txt, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'dbtn'; b.textContent = txt; b.addEventListener('click', () => { gx.focus(i); btns.forEach((x, k) => x.setAttribute('aria-pressed', String(k === i + 1))); }); ctl.appendChild(b); return b; };
+  const btns = [mk('Vue d’ensemble', -1)].concat(ORDER.map((s, i) => mk(`${i + 1} · ${stageName(s)}`, i)));
+  btns[0].setAttribute('aria-pressed', 'true');
+})();
+
+/* ---------- Version 2 : Visite guidée ---------- */
+(function () {
+  const panel = $('#d2'), flowColor = (l) => FLOWS[l[3]][1];
+  const touch = (s) => new Set(L.map((l, i) => [l, i]).filter(([l]) => l[0] === '@' + s || l[1] === '@' + s).map(([, i]) => i));
+  const idx = (pred) => new Set(L.map((l, i) => [l, i]).filter(([l]) => pred(l)).map(([, i]) => i));
+  const STEPS = [
+    { f: -1, t: 'Au centre : HP ALM', p: 'L’outil qui pilote toute la campagne de test, des exigences jusqu’aux rapports. Autour de lui, chaque amas est une étape du cycle QA.', hi: idx((l) => l[2] === 'module') },
+    { f: 0, t: '1 · Besoin et conception', p: 'Les exigences et le plan de test sont définis dans ALM : chaque cas de test est rattaché à l’exigence qu’il couvre.', hi: touch('besoin') },
+    { f: 1, t: '2 · Exécution', p: 'Les campagnes sont lancées depuis le Test Lab d’ALM : scripts UFT One, tests d’API Postman et contrôles SQL. Les résultats remontent dans ALM.', hi: new Set([...touch('exec'), ...idx((l) => l[0] === 'uft' && l[1] === 'alm')].filter((i) => L[i][2] !== 'futur')) },
+    { f: 2, t: '3 · Données et batchs', p: 'Les données sont contrôlées en base avec PostgreSQL et les traitements batch analysés par scripts Bash, dans un environnement qui comprend Kafka.', hi: touch('donnees') },
+    { f: 3, t: '4 · Suivi des anomalies', p: 'Les anomalies sont suivies dans ALM (module Defects), Jira et Redmine. ALM et Jira peuvent être synchronisés.', hi: new Set([...touch('anomalies'), ...idx((l) => l[0] === 'jira' && l[1] === 'alm')]) },
+    { f: 4, t: '5 · Livraison', p: 'Les tableaux de bord et rapports d’ALM alimentent le bilan et la décision Go/No-Go ; le code est versionné dans GitLab et GitHub.', hi: new Set([...touch('livraison'), ...idx((l) => l[0] === 'gitlab' && l[1] === 'redmine')].filter((i) => L[i][2] !== 'futur')) },
+    { f: -1, t: 'Et demain', p: 'Playwright (en formation), k6 et les collections Postman lancés automatiquement par GitHub Actions, dans des environnements Docker.', hi: idx((l) => l[2] === 'futur') }
+  ];
+  const gx = createGalaxy($('#g2'), { color: flowColor, onNode: (id) => { stop(); showDetail(panel, id, flowColor); }, onStation: (i) => { stop(); go(i + 1); } });
+  const story = $('#story'), dots = $('#dots'), play = $('#play');
+  const dotBtns = STEPS.map((s, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', `Étape ${i + 1} : ${s.t}`); b.addEventListener('click', () => { stop(); go(i); }); dots.appendChild(b); return b; });
+  let cur = 0, auto = !paused, timer = 0;
+  function go(i) { cur = (i + STEPS.length) % STEPS.length; const s = STEPS[cur]; gx.focus(s.f); gx.highlight(s.hi); story.innerHTML = `<b>${s.t}</b><p>${s.p}</p>`; dotBtns.forEach((b, k) => b.toggleAttribute('aria-current', k === cur) || (k === cur && b.setAttribute('aria-current', 'step'))); dotBtns.forEach((b, k) => k === cur ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current')); timer = 0; }
+  function stop() { auto = false; play.setAttribute('aria-pressed', 'false'); play.textContent = 'Lecture'; }
+  play.addEventListener('click', () => { auto = !auto; play.setAttribute('aria-pressed', String(auto)); play.textContent = auto ? 'Pause' : 'Lecture'; });
+  $('#prev').addEventListener('click', () => { stop(); go(cur - 1); });
+  $('#next').addEventListener('click', () => { stop(); go(cur + 1); });
+  if (!auto) { play.setAttribute('aria-pressed', 'false'); play.textContent = 'Lecture'; }
+  go(0);
+  let last = performance.now();
+  (function tick(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; if (auto && !paused && visible.has('v2')) { timer += dt; if (timer > 6.5) go(cur + 1); } requestAnimationFrame(tick); })(last);
+})();
+
+/* ---------- Version 3 : Flux colorés ---------- */
+(function () {
+  const panel = $('#d3'), flowColor = (l) => FLOWS[l[3]][1], on = new Set(Object.keys(FLOWS));
+  const gx = createGalaxy($('#g3'), { color: flowColor, shown: (l) => on.has(l[3]), onNode: (id) => showDetail(panel, id, flowColor), onStation: (i) => gx.focus(i) });
+  const row = $('#flows');
+  const all = document.createElement('button'); all.type = 'button'; all.className = 'dbtn'; all.textContent = 'Tout afficher'; all.setAttribute('aria-pressed', 'true');
+  all.addEventListener('click', () => { Object.keys(FLOWS).forEach((k) => on.add(k)); sync(); gx.focus(-1); }); row.appendChild(all);
+  const btns = Object.entries(FLOWS).map(([k, [n, c]]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'dbtn'; b.innerHTML = `<i class="dot" style="background:${c}"></i>${n}`;
+    b.addEventListener('click', () => { if (on.size === Object.keys(FLOWS).length) { on.clear(); on.add(k); } else if (on.has(k)) { on.delete(k); if (!on.size) Object.keys(FLOWS).forEach((x) => on.add(x)); } else on.add(k); sync(); });
+    row.appendChild(b); return [k, b];
+  });
+  function sync() { const full = on.size === Object.keys(FLOWS).length; all.setAttribute('aria-pressed', String(full)); btns.forEach(([k, b]) => b.setAttribute('aria-pressed', String(!full && on.has(k)))); }
+  sync();
+})();
+</script>
+</body>
+</html>

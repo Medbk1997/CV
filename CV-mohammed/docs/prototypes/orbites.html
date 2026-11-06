@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbites — 4 prototypes</title>
+<link rel="stylesheet" href="../../assets/css/fonts.css">
+<style>
+:root{color-scheme:light;--ink:#2b0a3d;--text:#1c1326;--muted:#5b516b;--line:#e4e0ea;--soft:#f6f2f9;--accent:#8a5cb0}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;font-family:Ubuntu,Arial,sans-serif;color:var(--text)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.top{position:sticky;top:0;z-index:2000;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.top h1{margin:0;font-size:17px;color:var(--ink)}
+.top nav{display:flex;gap:6px;flex-wrap:wrap}
+.pill,.btn{font:600 14px Ubuntu,Arial,sans-serif;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none;cursor:pointer}
+.btn[aria-pressed="true"],.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible,.pill:focus-visible,.node:focus-visible,.stage-btn:focus-visible,.chip-btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.intro{max-width:1100px;margin:0 auto;padding:28px 20px 0;color:var(--muted);line-height:1.6}
+.intro b{color:var(--ink)}
+section.proto{max-width:1100px;margin:0 auto;padding:40px 20px 24px;border-bottom:1px solid var(--line)}
+.head{display:flex;gap:14px;align-items:flex-start;margin-bottom:8px}
+.num{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px}
+h2{margin:0;font-size:26px;color:var(--ink)}
+.desc{margin:6px 0 0;color:var(--muted);line-height:1.55;max-width:760px}
+.pc{display:flex;flex-wrap:wrap;gap:8px 24px;margin:12px 0 18px 54px;font-size:14px;color:var(--muted)}
+.pc span b{color:var(--ink)}
+.stagearea{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:28px;align-items:start}
+@media(max-width:820px){.stagearea{grid-template-columns:minmax(0,1fr)}.pc{margin-left:0}}
+.demo{position:relative;background:linear-gradient(180deg,#fbf9fd,#f4eff8);border:1px solid var(--line);border-radius:24px;padding:18px;overflow:hidden}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.detail{border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;gap:14px;min-height:120px;background:#fff}
+.detail .d-logo{flex-shrink:0;width:52px;height:52px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;font-size:15px}
+.detail .d-logo svg,.detail .d-logo img{width:62%;height:62%;object-fit:contain}
+.detail p{margin:0 0 6px;line-height:1.5;font-size:14px}
+.d-title{font-weight:700;font-size:17px!important;color:var(--ink)}
+.d-cat{color:var(--muted)}
+.badge{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:2px;background:#ecfdf3;color:#05603a}
+.badge.discover{background:#fff7e6;color:#8a4b00}.badge.company{background:var(--soft);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px!important}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink);background:var(--soft)}
+.hint{color:var(--muted);font-size:14px}
+.caption{margin:12px 0 0;min-height:44px;font-size:15px;color:var(--ink);line-height:1.45}
+.caption small{display:block;color:var(--muted);font-size:13px}
+/* Nœuds (logos) */
+.node{position:absolute;left:0;top:0;padding:0;border-radius:50%;background:#fff;border:1px solid #ddd5e6;box-shadow:0 6px 16px rgba(43,10,61,.12);display:grid;place-items:center;cursor:pointer;font:600 12px 'JetBrains Mono',monospace;transition:opacity .35s,box-shadow .25s,border-color .25s}
+.node svg,.node img{width:62%;height:62%;object-fit:contain;pointer-events:none}
+.node span{font-size:1em;pointer-events:none}
+.node.discover{border:1.5px dashed #a07fc0;background:rgba(255,255,255,.9)}
+.node.sel{box-shadow:0 0 0 3px var(--ink),0 8px 22px rgba(43,10,61,.28)}
+.core{position:absolute;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;text-align:center;font:700 14px/1.05 'JetBrains Mono',monospace;box-shadow:0 0 0 8px rgba(138,92,176,.18),0 14px 34px rgba(43,10,61,.35)}
+/* 1 — Orbite 3D */
+#o3d{position:relative;width:100%;max-width:520px;aspect-ratio:1/.8;margin:0 auto;touch-action:pan-y}
+.ring3{position:absolute;left:50%;top:50%;border:1.5px solid rgba(43,10,61,.16);border-radius:50%;z-index:1;pointer-events:none}
+.ring3.dashed{border-style:dashed;border-color:rgba(138,92,176,.45)}
+/* 2 — Cycle QA */
+#cyc{position:relative;width:100%;max-width:520px;aspect-ratio:1;margin:0 auto;perspective:1100px}
+#cyc .group{position:absolute;inset:0;transform-style:preserve-3d}
+#cyc .ring{position:absolute;left:50%;top:50%;border-radius:50%;border:2px solid rgba(43,10,61,.12);transition:border-color .35s,box-shadow .35s;pointer-events:none}
+#cyc .ring.on{border-color:var(--accent);box-shadow:0 0 0 6px rgba(138,92,176,.12),inset 0 0 0 6px rgba(138,92,176,.08)}
+#cyc .node{left:50%;top:50%}
+#cyc .node.on{border-color:var(--ink);box-shadow:0 0 0 3px rgba(138,92,176,.55),0 10px 24px rgba(43,10,61,.28)}
+.dim{opacity:.22}
+.stage-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.stage-btn{font:600 13px Ubuntu,Arial,sans-serif;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.stage-btn b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);font-size:11px}
+.stage-btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}.stage-btn.on b{background:rgba(255,255,255,.2)}
+/* 3 — Constellation */
+#cst{position:relative;width:100%}
+#cst svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#cst .lk{stroke:#cbbcd9;stroke-width:1.5;transition:stroke .25s,opacity .25s}
+#cst .lk.main{stroke:#8a5cb0;stroke-width:2.5}
+#cst .lk.disc{stroke-dasharray:5 5;stroke:#c3a9d9}
+#cst .lk.hot{stroke:var(--ink);stroke-width:3}
+#cst .lk.cold{opacity:.18}
+#cst .col-label{position:absolute;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;letter-spacing:.02em}
+#cst .float{animation:float 5s ease-in-out infinite}
+#cst .node.pulse{box-shadow:0 0 0 5px rgba(138,92,176,.35),0 10px 26px rgba(43,10,61,.3);border-color:var(--ink)}
+#cst .node.cold{opacity:.25}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -6px}}
+/* 4 — Bandes */
+.band{position:relative;overflow:hidden;padding:8px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.band-label{font-size:13px;font-weight:700;color:var(--ink);margin:10px 0 2px;display:flex;align-items:center;gap:8px}
+.band-label i{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}.band-label i.d{background:none;border:1.5px dashed #a07fc0}
+.track{display:flex;gap:12px;width:max-content;animation:marquee var(--dur,38s) linear infinite}
+.track.rev{animation-direction:reverse}
+.band:hover .track,.band:focus-within .track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.chip-btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 18px 0 8px;border-radius:26px;border:1px solid var(--line);background:#fff;color:var(--ink);font:600 15px Ubuntu,Arial,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(43,10,61,.06)}
+.chip-btn.discover{border:1.5px dashed #a07fc0}
+.chip-btn .lg{width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:600 11px 'JetBrains Mono',monospace}
+.chip-btn .lg svg,.chip-btn .lg img{width:62%;height:62%;object-fit:contain}
+/* Pause globale */
+body.paused .track,body.paused #cst .float{animation-play-state:paused}
+@media(max-width:700px){.top{position:static}.top h1{font-size:16px}}
+footer{max-width:1100px;margin:0 auto;padding:24px 20px 60px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>« Mon environnement et mes outils » — 4 prototypes</h1>
+  <nav aria-label="Prototypes"><a class="pill" href="#p1">1 · Orbite 3D</a><a class="pill" href="#p2">2 · Cycle QA</a><a class="pill" href="#p3">3 · Constellation</a><a class="pill" href="#p4">4 · Bandes</a></nav>
+  <button class="btn" id="pauseAll" type="button" aria-pressed="false">Mettre en pause les animations</button>
+</div>
+<p class="intro">Chaque prototype utilise <b>vos vraies données</b> : Sogeti, l’URSSAF, les 10 outils de la mission et les 4 outils « à découvrir », avec les étapes du cycle QA déjà présentes sur votre portfolio. <b>Cliquez sur un logo</b> pour voir sa fiche. Tout est fait sans bibliothèque externe, et les animations s’arrêtent si « réduire les animations » est activé sur l’appareil.</p>
+
+<section class="proto" id="p1">
+  <div class="head"><span class="num">1</span><div><h2>Orbite 3D inclinée</h2><p class="desc">Les anneaux sont penchés en perspective : les logos passent devant et derrière le centre, avec un léger flou de profondeur. Bougez la souris sur l’orbite : elle s’incline. Sur téléphone, le bouton « Inclinaison du téléphone » la fait suivre vos mouvements.</p></div></div>
+  <p class="pc"><span><b>+</b> le plus spectaculaire, proche de votre orbite actuelle</span><span><b>−</b> décoratif : ne montre pas où sert chaque outil</span></p>
+  <div class="stagearea">
+    <div><div class="demo"><div id="o3d" role="group" aria-label="Orbite 3D des outils"></div></div>
+      <div class="controls"><button class="btn" type="button" id="gyroBtn" hidden>Inclinaison du téléphone</button><span class="hint">Anneau intérieur : employeur et client · milieu : outils en mission · extérieur (pointillés) : à découvrir</span></div></div>
+    <div class="detail" id="d1"><p class="hint">Cliquez sur un logo pour afficher sa fiche.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="p2">
+  <div class="head"><span class="num">2</span><div><h2>Le cycle QA en anneaux <small style="font-size:14px;color:var(--accent)">— recommandé</small></h2><p class="desc">Chaque anneau est une étape de votre cycle, du centre vers l’extérieur. Chaque outil est posé sur l’anneau de l’étape où il sert le plus. Le cycle se « joue » tout seul ; cliquez sur une étape pour la figer. Le bouton « Vue 3D » ajoute la perspective de la proposition 1.</p></div></div>
+  <p class="pc"><span><b>+</b> montre <i>comment</i> vous travaillez, pas seulement vos outils</span><span><b>+</b> lisible sur mobile</span><span><b>−</b> un peu plus d’explications à lire</span></p>
+  <div class="stagearea">
+    <div><div class="demo"><div id="cyc" role="group" aria-label="Outils par étape du cycle QA"><div class="group"></div></div></div>
+      <div class="stage-list" id="stages2" role="group" aria-label="Étapes du cycle"></div>
+      <div class="controls"><button class="btn" type="button" id="tilt2" aria-pressed="false">Vue 3D</button><button class="btn" type="button" id="replay2">Rejouer le cycle</button></div>
+      <p class="caption" id="cap2" aria-live="polite"></p></div>
+    <div class="detail" id="d2"><p class="hint">Cliquez sur un logo pour afficher sa fiche.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="p3">
+  <div class="head"><span class="num">3</span><div><h2>Constellation</h2><p class="desc">Les outils sont rangés par étape et reliés entre eux. Une particule parcourt la chaîne principale, de la conception à la livraison. Survolez un outil pour allumer ses connexions. Les liaisons en pointillés mènent aux outils à découvrir.</p></div></div>
+  <p class="pc"><span><b>+</b> moderne, « tableau de bord technique »</span><span><b>+</b> raconte un enchaînement</span><span><b>−</b> les liaisons sont une illustration, pas un schéma exact de la mission</span></p>
+  <div class="stagearea">
+    <div><div class="demo"><div id="cst" role="group" aria-label="Constellation des outils"><svg aria-hidden="true"></svg></div></div>
+      <p class="caption" id="cap3" aria-live="polite"></p></div>
+    <div class="detail" id="d3"><p class="hint">Cliquez sur un logo pour afficher sa fiche.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="p4">
+  <div class="head"><span class="num">4</span><div><h2>Bandes défilantes</h2><p class="desc">Deux rubans de logos avec leurs noms, en sens inverse. Survolez un ruban pour l’arrêter, cliquez un outil pour sa fiche.</p></div></div>
+  <p class="pc"><span><b>+</b> le plus simple et le plus lisible sur petit écran</span><span><b>+</b> les noms sont toujours visibles</span><span><b>−</b> le moins original</span></p>
+  <div class="stagearea">
+    <div><div class="demo" style="padding:12px 0"><div style="padding:0 18px" class="band-label"><i></i>En mission</div><div class="band"><div class="track" id="band1"></div></div><div style="padding:0 18px" class="band-label"><i class="d"></i>À découvrir</div><div class="band"><div class="track rev" id="band2" style="--dur:26s"></div></div></div></div>
+    <div class="detail" id="d4"><p class="hint">Cliquez sur un outil pour afficher sa fiche.</p></div>
+  </div>
+</section>
+<footer>Prototypes de travail : rien n’est encore intégré au portfolio. Dites-moi le numéro choisi (ou un mélange) et je l’intègre à la section « Mon environnement et mes outils ».</footer>
+
+<script>
+const D = {"TOOLS_USED":[{"n":"PostgreSQL","h":"4169E1","p":"M23.5594 14.7228a.5269.5269 0 0 0-.0563-.1191c-.139-.2632-.4768-.3418-1.0074-.2321-1.6533.3411-2.2935.1312-2.5256-.0191 1.342-2.0482 2.445-4.522 3.0411-6.8297.2714-1.0507.7982-3.5237.1222-4.7316a1.5641 1.5641 0 0 0-.1509-.235C21.6931.9086 19.8007.0248 17.5099.0005c-1.4947-.0158-2.7705.3461-3.1161.4794a9.449 9.449 0 0 0-.5159-.0816 8.044 8.044 0 0 0-1.3114-.1278c-1.1822-.0184-2.2038.2642-3.0498.8406-.8573-.3211-4.7888-1.645-7.2219.0788C.9359 2.1526.3086 3.8733.4302 6.3043c.0409.818.5069 3.334 1.2423 5.7436.4598 1.5065.9387 2.7019 1.4334 3.582.553.9942 1.1259 1.5933 1.7143 1.7895.4474.1491 1.1327.1441 1.8581-.7279.8012-.9635 1.5903-1.8258 1.9446-2.2069.4351.2355.9064.3625 1.39.3772a.0569.0569 0 0 0 .0004.0041 11.0312 11.0312 0 0 0-.2472.3054c-.3389.4302-.4094.5197-1.5002.7443-.3102.064-1.1344.2339-1.1464.8115-.0025.1224.0329.2309.0919.3268.2269.4231.9216.6097 1.015.6331 1.3345.3335 2.5044.092 3.3714-.6787-.017 2.231.0775 4.4174.3454 5.0874.2212.5529.7618 1.9045 2.4692 1.9043.2505 0 .5263-.0291.8296-.0941 1.7819-.3821 2.5557-1.1696 2.855-2.9059.1503-.8707.4016-2.8753.5388-4.1012.0169-.0703.0357-.1207.057-.1362.0007-.0005.0697-.0471.4272.0307a.3673.3673 0 0 0 .0443.0068l.2539.0223.0149.001c.8468.0384 1.9114-.1426 2.5312-.4308.6438-.2988 1.8057-1.0323 1.5951-1.6698zM2.371 11.8765c-.7435-2.4358-1.1779-4.8851-1.2123-5.5719-.1086-2.1714.4171-3.6829 1.5623-4.4927 1.8367-1.2986 4.8398-.5408 6.108-.13-.0032.0032-.0066.0061-.0098.0094-2.0238 2.044-1.9758 5.536-1.9708 5.7495-.0002.0823.0066.1989.0162.3593.0348.5873.0996 1.6804-.0735 2.9184-.1609 1.1504.1937 2.2764.9728 3.0892.0806.0841.1648.1631.2518.2374-.3468.3714-1.1004 1.1926-1.9025 2.1576-.5677.6825-.9597.5517-1.0886.5087-.3919-.1307-.813-.5871-1.2381-1.3223-.4796-.839-.9635-2.0317-1.4155-3.5126zm6.0072 5.0871c-.1711-.0428-.3271-.1132-.4322-.1772.0889-.0394.2374-.0902.4833-.1409 1.2833-.2641 1.4815-.4506 1.9143-1.0002.0992-.126.2116-.2687.3673-.4426a.3549.3549 0 0 0 .0737-.1298c.1708-.1513.2724-.1099.4369-.0417.156.0646.3078.26.3695.4752.0291.1016.0619.2945-.0452.4444-.9043 1.2658-2.2216 1.2494-3.1676 1.0128zm2.094-3.988-.0525.141c-.133.3566-.2567.6881-.3334 1.003-.6674-.0021-1.3168-.2872-1.8105-.8024-.6279-.6551-.9131-1.5664-.7825-2.5004.1828-1.3079.1153-2.4468.079-3.0586-.005-.0857-.0095-.1607-.0122-.2199.2957-.2621 1.6659-.9962 2.6429-.7724.4459.1022.7176.4057.8305.928.5846 2.7038.0774 3.8307-.3302 4.7363-.084.1866-.1633.3629-.2311.5454zm7.3637 4.5725c-.0169.1768-.0358.376-.0618.5959l-.146.4383a.3547.3547 0 0 0-.0182.1077c-.0059.4747-.054.6489-.115.8693-.0634.2292-.1353.4891-.1794 1.0575-.11 1.4143-.8782 2.2267-2.4172 2.5565-1.5155.3251-1.7843-.4968-2.0212-1.2217a6.5824 6.5824 0 0 0-.0769-.2266c-.2154-.5858-.1911-1.4119-.1574-2.5551.0165-.5612-.0249-1.9013-.3302-2.6462.0044-.2932.0106-.5909.019-.8918a.3529.3529 0 0 0-.0153-.1126 1.4927 1.4927 0 0 0-.0439-.208c-.1226-.4283-.4213-.7866-.7797-.9351-.1424-.059-.4038-.1672-.7178-.0869.067-.276.1831-.5875.309-.9249l.0529-.142c.0595-.16.134-.3257.213-.5012.4265-.9476 1.0106-2.2453.3766-5.1772-.2374-1.0981-1.0304-1.6343-2.2324-1.5098-.7207.0746-1.3799.3654-1.7088.5321a5.6716 5.6716 0 0 0-.1958.1041c.0918-1.1064.4386-3.1741 1.7357-4.4823a4.0306 4.0306 0 0 1 .3033-.276.3532.3532 0 0 0 .1447-.0644c.7524-.5706 1.6945-.8506 2.802-.8325.4091.0067.8017.0339 1.1742.081 1.939.3544 3.2439 1.4468 4.0359 2.3827.8143.9623 1.2552 1.9315 1.4312 2.4543-1.3232-.1346-2.2234.1268-2.6797.779-.9926 1.4189.543 4.1729 1.2811 5.4964.1353.2426.2522.4522.2889.5413.2403.5825.5515.9713.7787 1.2552.0696.087.1372.1714.1885.245-.4008.1155-1.1208.3825-1.0552 1.717-.0123.1563-.0423.4469-.0834.8148-.0461.2077-.0702.4603-.0994.7662zm.8905-1.6211c-.0405-.8316.2691-.9185.5967-1.0105a2.8566 2.8566 0 0 0 .135-.0406 1.202 1.202 0 0 0 .1342.103c.5703.3765 1.5823.4213 3.0068.1344-.2016.1769-.5189.3994-.9533.6011-.4098.1903-1.0957.333-1.7473.3636-.7197.0336-1.0859-.0807-1.1721-.151zm.5695-9.2712c-.0059.3508-.0542.6692-.1054 1.0017-.055.3576-.112.7274-.1264 1.1762-.0142.4368.0404.8909.0932 1.3301.1066.887.216 1.8003-.2075 2.7014a3.5272 3.5272 0 0 1-.1876-.3856c-.0527-.1276-.1669-.3326-.3251-.6162-.6156-1.1041-2.0574-3.6896-1.3193-4.7446.3795-.5427 1.3408-.5661 2.1781-.463zm.2284 7.0137a12.3762 12.3762 0 0 0-.0853-.1074l-.0355-.0444c.7262-1.1995.5842-2.3862.4578-3.4385-.0519-.4318-.1009-.8396-.0885-1.2226.0129-.4061.0666-.7543.1185-1.0911.0639-.415.1288-.8443.1109-1.3505.0134-.0531.0188-.1158.0118-.1902-.0457-.4855-.5999-1.938-1.7294-3.253-.6076-.7073-1.4896-1.4972-2.6889-2.0395.5251-.1066 1.2328-.2035 2.0244-.1859 2.0515.0456 3.6746.8135 4.8242 2.2824a.908.908 0 0 1 .0667.1002c.7231 1.3556-.2762 6.2751-2.9867 10.5405zm-8.8166-6.1162c-.025.1794-.3089.4225-.6211.4225a.5821.5821 0 0 1-.0809-.0056c-.1873-.026-.3765-.144-.5059-.3156-.0458-.0605-.1203-.178-.1055-.2844.0055-.0401.0261-.0985.0925-.1488.1182-.0894.3518-.1226.6096-.0867.3163.0441.6426.1938.6113.4186zm7.9305-.4114c.0111.0792-.049.201-.1531.3102-.0683.0717-.212.1961-.4079.2232a.5456.5456 0 0 1-.075.0052c-.2935 0-.5414-.2344-.5607-.3717-.024-.1765.2641-.3106.5611-.352.297-.0414.6111.0088.6356.1851z"},{"n":"Apache Kafka","h":"231F20","p":"M9.71 2.136a1.43 1.43 0 0 0-2.047 0h-.007a1.48 1.48 0 0 0-.421 1.042c0 .41.161.777.422 1.039l.007.007c.257.264.616.426 1.019.426.404 0 .766-.162 1.027-.426l.003-.007c.261-.262.421-.629.421-1.039 0-.408-.159-.777-.421-1.042H9.71zM8.683 22.295c.404 0 .766-.167 1.027-.429l.003-.008c.261-.261.421-.631.421-1.036 0-.41-.159-.778-.421-1.044H9.71a1.42 1.42 0 0 0-1.027-.432 1.4 1.4 0 0 0-1.02.432h-.007c-.26.266-.422.634-.422 1.044 0 .406.161.775.422 1.036l.007.008c.258.262.617.429 1.02.429zm7.89-4.462c.359-.096.683-.33.882-.684l.027-.052a1.47 1.47 0 0 0 .114-1.067 1.454 1.454 0 0 0-.675-.896l-.021-.014a1.425 1.425 0 0 0-1.078-.132c-.36.091-.684.335-.881.686-.2.349-.241.75-.146 1.119.099.363.33.691.675.896h.002c.346.203.737.239 1.101.144zm-6.405-7.342a2.083 2.083 0 0 0-1.485-.627c-.58 0-1.103.242-1.482.627-.378.385-.612.916-.612 1.507s.233 1.124.612 1.514a2.08 2.08 0 0 0 2.967 0c.379-.39.612-.923.612-1.514s-.233-1.122-.612-1.507zm-.835-2.51c.843.141 1.6.552 2.178 1.144h.004c.092.093.182.196.265.299l1.446-.851a3.176 3.176 0 0 1-.047-1.808 3.149 3.149 0 0 1 1.456-1.926l.025-.016a3.062 3.062 0 0 1 2.345-.306c.77.21 1.465.721 1.898 1.482v.002c.431.757.518 1.626.313 2.408a3.145 3.145 0 0 1-1.456 1.928l-.198.118h-.02a3.095 3.095 0 0 1-2.154.201 3.127 3.127 0 0 1-1.514-.944l-1.444.848a4.162 4.162 0 0 1 0 2.879l1.444.846c.413-.47.939-.789 1.514-.944a3.041 3.041 0 0 1 2.371.319l.048.023v.002a3.17 3.17 0 0 1 1.408 1.906 3.215 3.215 0 0 1-.313 2.405l-.026.053-.003-.005a3.147 3.147 0 0 1-1.867 1.436 3.096 3.096 0 0 1-2.371-.318v-.006a3.156 3.156 0 0 1-1.456-1.927 3.175 3.175 0 0 1 .047-1.805l-1.446-.848a3.905 3.905 0 0 1-.265.294l-.004.005a3.938 3.938 0 0 1-2.178 1.138v1.699a3.09 3.09 0 0 1 1.56.862l.002.004c.565.572.914 1.368.914 2.243 0 .873-.35 1.664-.914 2.239l-.002.009a3.1 3.1 0 0 1-2.21.931 3.1 3.1 0 0 1-2.206-.93h-.002v-.009a3.186 3.186 0 0 1-.916-2.239c0-.875.35-1.672.916-2.243v-.004h.002a3.1 3.1 0 0 1 1.558-.862v-1.699a3.926 3.926 0 0 1-2.176-1.138l-.006-.005a4.098 4.098 0 0 1-1.173-2.874c0-1.122.452-2.136 1.173-2.872h.006a3.947 3.947 0 0 1 2.176-1.144V6.289a3.137 3.137 0 0 1-1.558-.864h-.002v-.004a3.192 3.192 0 0 1-.916-2.243c0-.871.35-1.669.916-2.243l.002-.002A3.084 3.084 0 0 1 8.683 0c.861 0 1.641.355 2.21.932v.002h.002c.565.574.914 1.372.914 2.243 0 .876-.35 1.667-.914 2.243l-.002.005a3.142 3.142 0 0 1-1.56.864v1.692zm8.121-1.129l-.012-.019a1.452 1.452 0 0 0-.87-.668 1.43 1.43 0 0 0-1.103.146h.002c-.347.2-.58.529-.677.896-.095.365-.054.768.146 1.119l.007.009c.2.347.519.579.874.673.357.103.755.059 1.098-.144l.019-.009a1.47 1.47 0 0 0 .657-.885 1.493 1.493 0 0 0-.141-1.118"},{"n":"Postman","h":"FF6C37","p":"M13.527.099C6.955-.744.942 3.9.099 10.473c-.843 6.572 3.8 12.584 10.373 13.428 6.573.843 12.587-3.801 13.428-10.374C24.744 6.955 20.101.943 13.527.099zm2.471 7.485a.855.855 0 0 0-.593.25l-4.453 4.453-.307-.307-.643-.643c4.389-4.376 5.18-4.418 5.996-3.753zm-4.863 4.861l4.44-4.44a.62.62 0 1 1 .847.903l-4.699 4.125-.588-.588zm.33.694l-1.1.238a.06.06 0 0 1-.067-.032.06.06 0 0 1 .01-.073l.645-.645.512.512zm-2.803-.459l1.172-1.172.879.878-1.979.426a.074.074 0 0 1-.085-.039.072.072 0 0 1 .013-.093zm-3.646 6.058a.076.076 0 0 1-.069-.083.077.077 0 0 1 .022-.046h.002l.946-.946 1.222 1.222-2.123-.147zm2.425-1.256a.228.228 0 0 0-.117.256l.203.865a.125.125 0 0 1-.211.117h-.003l-.934-.934-.294-.295 3.762-3.758 1.82-.393.874.874c-1.255 1.102-2.971 2.201-5.1 3.268zm5.279-3.428h-.002l-.839-.839 4.699-4.125a.952.952 0 0 0 .119-.127c-.148 1.345-2.029 3.245-3.977 5.091zm3.657-6.46l-.003-.002a1.822 1.822 0 0 1 2.459-2.684l-1.61 1.613a.119.119 0 0 0 0 .169l1.247 1.247a1.817 1.817 0 0 1-2.093-.343zm2.578 0a1.714 1.714 0 0 1-.271.218h-.001l-1.207-1.207 1.533-1.533c.661.72.637 1.832-.054 2.522zM18.855 6.05a.143.143 0 0 0-.053.157.416.416 0 0 1-.053.45.14.14 0 0 0 .023.197.141.141 0 0 0 .084.03.14.14 0 0 0 .106-.05.691.691 0 0 0 .087-.751.138.138 0 0 0-.194-.033z"},{"n":"Jira","h":"0052CC","p":"M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0Z"},{"n":"Redmine","h":"B32024","p":"m1.092 15.088c.789.243 4.098 1.005 4.098 1.005.198.061.139.21.139.21-.228 1.798-.178 3.17-.178 3.644 0 .21-.153.18-.153.18h-4.83c-.209 0-.164-.19-.164-.19.04-.599.212-2.303.878-4.746 0 0 .033-.157.21-.103zm21.816 0c-.789.243-4.098 1.005-4.098 1.005-.198.061-.139.21-.139.21.228 1.798.178 3.17.178 3.644 0 .21.153.18.153.18h4.83c.21 0 .164-.19.164-.19-.04-.599-.212-2.303-.878-4.746 0 0-.034-.157-.21-.103zm-1.929-5.354-3.448 1.667c-.164.063-.082.212-.082.212.476 1.134.766 2.091.99 3.251.038.194.169.132.169.132l3.879-1.684s.116-.044.068-.193c-.172-.531-1.05-2.649-1.402-3.341 0 0-.062-.105-.174-.044zm-17.958 0 3.448 1.667c.164.063.082.212.082.212-.476 1.134-.766 2.091-.991 3.251-.037.194-.169.132-.169.132l-3.878-1.684s-.116-.044-.068-.193c.172-.531 1.05-2.649 1.402-3.341 0 0 .062-.105.174-.044zm4.085-4.368 2.302 2.681c.099.128-.032.222-.032.222-.923.498-1.59 1.25-2.161 2.111-.114.17-.236.046-.236.046l-2.917-2.184s-.126-.074-.016-.22c.854-1.134 1.63-1.934 2.871-2.689 0 0 .094-.089.189.033zm9.788 0-2.302 2.681c-.099.128.032.222.032.222.923.498 1.59 1.25 2.161 2.111.114.17.236.046.236.046l2.917-2.184s.126-.074.016-.22c-.854-1.134-1.63-1.934-2.871-2.689 0 0-.094-.089-.189.033zm-4.894 2.295c.388 0 1.105.037 1.444.093.177.03.221-.088.221-.088l1.449-3.028s.097-.114-.106-.188c-1.082-.396-1.657-.578-3.008-.578-1.335 0-1.926.182-3.008.578-.203.074-.106.188-.106.188l1.449 3.028s.044.118.221.088c.339-.056 1.056-.093 1.444-.093z"},{"n":"GitHub","h":"181717","p":"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"},{"n":"GitLab","h":"FC6D26","p":"m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z"},{"n":"Bash","h":"4EAA25","p":"M21.038,4.9l-7.577-4.498C13.009,0.134,12.505,0,12,0c-0.505,0-1.009,0.134-1.462,0.403L2.961,4.9 C2.057,5.437,1.5,6.429,1.5,7.503v8.995c0,1.073,0.557,2.066,1.462,2.603l7.577,4.497C10.991,23.866,11.495,24,12,24 c0.505,0,1.009-0.134,1.461-0.402l7.577-4.497c0.904-0.537,1.462-1.529,1.462-2.603V7.503C22.5,6.429,21.943,5.437,21.038,4.9z M15.17,18.946l0.013,0.646c0.001,0.078-0.05,0.167-0.111,0.198l-0.383,0.22c-0.061,0.031-0.111-0.007-0.112-0.085L14.57,19.29 c-0.328,0.136-0.66,0.169-0.872,0.084c-0.04-0.016-0.057-0.075-0.041-0.142l0.139-0.584c0.011-0.046,0.036-0.092,0.069-0.121 c0.012-0.011,0.024-0.02,0.036-0.026c0.022-0.011,0.043-0.014,0.062-0.006c0.229,0.077,0.521,0.041,0.802-0.101 c0.357-0.181,0.596-0.545,0.592-0.907c-0.003-0.328-0.181-0.465-0.613-0.468c-0.55,0.001-1.064-0.107-1.072-0.917 c-0.007-0.667,0.34-1.361,0.889-1.8l-0.007-0.652c-0.001-0.08,0.048-0.168,0.111-0.2l0.37-0.236 c0.061-0.031,0.111,0.007,0.112,0.087l0.006,0.653c0.273-0.109,0.511-0.138,0.726-0.088c0.047,0.012,0.067,0.076,0.048,0.151 l-0.144,0.578c-0.011,0.044-0.036,0.088-0.065,0.116c-0.012,0.012-0.025,0.021-0.038,0.028c-0.019,0.01-0.038,0.013-0.057,0.009 c-0.098-0.022-0.332-0.073-0.699,0.113c-0.385,0.195-0.52,0.53-0.517,0.778c0.003,0.297,0.155,0.387,0.681,0.396 c0.7,0.012,1.003,0.318,1.01,1.023C16.105,17.747,15.736,18.491,15.17,18.946z M19.143,17.859c0,0.06-0.008,0.116-0.058,0.145 l-1.916,1.164c-0.05,0.029-0.09,0.004-0.09-0.056v-0.494c0-0.06,0.037-0.093,0.087-0.122l1.887-1.129 c0.05-0.029,0.09-0.004,0.09,0.056V17.859z M20.459,6.797l-7.168,4.427c-0.894,0.523-1.553,1.109-1.553,2.187v8.833 c0,0.645,0.26,1.063,0.66,1.184c-0.131,0.023-0.264,0.039-0.398,0.039c-0.42,0-0.833-0.114-1.197-0.33L3.226,18.64 c-0.741-0.44-1.201-1.261-1.201-2.142V7.503c0-0.881,0.46-1.702,1.201-2.142l7.577-4.498c0.363-0.216,0.777-0.33,1.197-0.33 c0.419,0,0.833,0.114,1.197,0.33l7.577,4.498c0.624,0.371,1.046,1.013,1.164,1.732C21.686,6.557,21.12,6.411,20.459,6.797z"},{"n":"HP ALM","h":"0B6BCB","m":"ALM"},{"n":"UFT One","h":"E8590C","m":"UFT"}],"TOOLS_DISCOVER":[{"n":"Playwright","h":"2EAD33","m":"PW"},{"n":"Docker","h":"2496ED","p":"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"},{"n":"k6","h":"7D64FF","p":"M24 23.646H0L7.99 6.603l4.813 3.538L19.08.354Zm-8.8-3.681h.052a2.292 2.292 0 0 0 1.593-.64 2.088 2.088 0 0 0 .685-1.576 1.912 1.912 0 0 0-.66-1.511 2.008 2.008 0 0 0-1.37-.59h-.04a.716.716 0 0 0-.199.027l1.267-1.883-1.01-.705-.477.705-1.22 1.864c-.21.31-.386.582-.495.77-.112.2-.21.41-.29.625a1.942 1.942 0 0 0-.138.719 2.086 2.086 0 0 0 .676 1.558c.422.411.989.641 1.578.64Zm-5.365-2.027 1.398 1.978h1.496l-1.645-2.295 1.46-2.029-.97-.671-.427.565-1.314 1.853v-3.725l-1.31-1.068v7.37h1.31v-1.98Zm5.367.792a.963.963 0 1 1 0-1.927h.009a.941.941 0 0 1 .679.29.897.897 0 0 1 .29.668.978.978 0 0 1-.977.967Z"},{"n":"GitHub Actions","h":"2088FF","p":"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"}],"STAGES":[["besoin","Besoin et conception"],["exec","Exécution"],["donnees","Données et batchs"],["anomalies","Suivi des anomalies"],["livraison","Livraison"]],"MISSION":[{"id":"sogeti","kind":"company","n":"Sogeti","cat":"Employeur","st":[],"txt":"Mon employeur. Expérience chez Sogeti France sur la mission URSSAF en QA, automatisation de tests et pilotage des campagnes.","q":"Quelles sont ses missions chez Sogeti ?"},{"id":"urssaf","kind":"company","n":"URSSAF","cat":"Client de la mission","st":["besoin","exec","donnees","anomalies","livraison"],"txt":"Client de la mission : qualification fonctionnelle et technique, coordination des tests et reporting qualité.","q":"Quelles sont ses missions chez l’URSSAF ?"},{"id":"alm","kind":"used","n":"HP ALM","cat":"Gestion des tests","st":["besoin","anomalies"],"txt":"Gestion des tests et des anomalies."},{"id":"uft","kind":"used","n":"UFT One","cat":"Automatisation","st":["exec"],"txt":"Écriture et exécution de scripts d’automatisation fonctionnelle."},{"id":"postman","kind":"used","n":"Postman","cat":"Tests d’API","st":["exec"],"txt":"Tests d’API réguliers, en complément des tests fonctionnels."},{"id":"sql","kind":"used","n":"PostgreSQL","cat":"Données","st":["exec","donnees"],"txt":"Requêtes SQL pour vérifier les données et trouver des jeux de données de test."},{"id":"kafka","kind":"used","n":"Apache Kafka","cat":"Données","st":["donnees"],"txt":"Fait partie de l’environnement technique de mes tests."},{"id":"bash","kind":"used","n":"Bash","cat":"Scripts","st":["donnees"],"txt":"Scripts Bash pour analyser les traitements batch et les résultats de recette."},{"id":"jira","kind":"used","n":"Jira","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"redmine","kind":"used","n":"Redmine","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"github","kind":"used","n":"GitHub","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"gitlab","kind":"used","n":"GitLab","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"playwright","kind":"discover","n":"Playwright","cat":"Automatisation moderne","st":["exec"],"txt":"En formation : j’en ai les bases et je le pratique guidé par l’IA."},{"id":"docker","kind":"discover","n":"Docker","cat":"Environnements","st":["exec","livraison"],"txt":"À découvrir, pour des environnements de test reproductibles."},{"id":"k6","kind":"discover","n":"k6","cat":"Performance","st":["exec"],"txt":"À découvrir, pour les tests de performance."},{"id":"actions","kind":"discover","n":"GitHub Actions","cat":"Livraison continue","st":["livraison"],"txt":"À découvrir, pour lancer les tests automatiquement à chaque livraison."}]};
+const TOOLS = D.TOOLS_USED.concat(D.TOOLS_DISCOVER);
+const ITEMS = D.MISSION;
+const STAGES = D.STAGES;
+const $ = (s, r = document) => r.querySelector(s);
+const byId = (id) => ITEMS.find((m) => m.id === id);
+const stageName = (s) => (STAGES.find((x) => x[0] === s) || [s, s])[1];
+const PRIMARY = { alm: 'besoin', uft: 'exec', postman: 'exec', playwright: 'exec', k6: 'exec', sql: 'donnees', kafka: 'donnees', bash: 'donnees', jira: 'anomalies', redmine: 'anomalies', github: 'livraison', gitlab: 'livraison', docker: 'livraison', actions: 'livraison' };
+let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function logoHTML(it) {
+  if (it.kind === 'company') return `<img src="../../assets/logos/${it.id}.png" alt="">`;
+  const t = TOOLS.find((x) => x.n === it.n);
+  if (t && t.p) return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#${t.h}" d="${t.p}"/></svg>`;
+  return `<span class="mono" style="color:#${t ? t.h : '2b0a3d'}">${t ? t.m : it.n.slice(0, 3)}</span>`;
+}
+function kindLabel(it) { return it.kind === 'company' ? 'Organisation' : it.kind === 'discover' ? 'À découvrir' : 'En mission'; }
+function makeNode(id) {
+  const it = byId(id);
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'node' + (it.kind === 'discover' ? ' discover' : '');
+  b.dataset.id = id;
+  b.title = it.n;
+  b.setAttribute('aria-label', `${it.n} — ${it.cat} (${kindLabel(it).toLowerCase()})`);
+  b.innerHTML = logoHTML(it);
+  return b;
+}
+function showDetail(panel, id, scope) {
+  const it = byId(id);
+  scope.querySelectorAll('.node.sel').forEach((n) => n.classList.remove('sel'));
+  scope.querySelectorAll(`.node[data-id="${id}"]`).forEach((n) => n.classList.add('sel'));
+  const st = it.st.map(stageName);
+  panel.innerHTML = `<div class="d-logo">${logoHTML(it)}</div><div><p class="d-title">${it.n}<span class="badge ${it.kind}">${kindLabel(it)}</span></p><p class="d-cat">${it.cat}</p><p>${it.txt}</p>${st.length ? `<p class="chips">${st.map((s) => `<span>${s}</span>`).join('')}</p>` : ''}</div>`;
+}
+const pauseBtn = $('#pauseAll');
+function syncPause() {
+  document.body.classList.toggle('paused', paused);
+  pauseBtn.setAttribute('aria-pressed', String(paused));
+  pauseBtn.textContent = paused ? 'Relancer les animations' : 'Mettre en pause les animations';
+}
+pauseBtn.addEventListener('click', () => { paused = !paused; syncPause(); });
+syncPause();
+
+/* ---------- 1. Orbite 3D inclinée ---------- */
+(function () {
+  const box = $('#o3d'), panel = $('#d1');
+  const rings = [
+    { ids: ['sogeti', 'urssaf'], r: .16, w: 2 * Math.PI / 50, size: .1 },
+    { ids: ITEMS.filter((i) => i.kind === 'used').map((i) => i.id), r: .31, w: 2 * Math.PI / 48, size: .1 },
+    { ids: ITEMS.filter((i) => i.kind === 'discover').map((i) => i.id), r: .45, w: -2 * Math.PI / 70, size: .088, dashed: true }
+  ];
+  const ringEls = rings.map((r) => { const e = document.createElement('div'); e.className = 'ring3' + (r.dashed ? ' dashed' : ''); box.appendChild(e); return e; });
+  const core = document.createElement('div'); core.className = 'core'; core.innerHTML = 'QA<br>LEAD'; core.style.zIndex = '1000'; box.appendChild(core);
+  const nodes = [];
+  rings.forEach((r, ri) => r.ids.forEach((id, k) => {
+    const b = makeNode(id); box.appendChild(b);
+    nodes.push({ b, ri, a0: (k / r.ids.length) * 2 * Math.PI + ri * .7 });
+    b.addEventListener('click', () => showDetail(panel, id, box));
+  }));
+  let tilt = 64, tiltT = 64, roll = 0, rollT = 0, t = 0, last = performance.now();
+  box.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
+    const r = box.getBoundingClientRect();
+    tiltT = 64 - ((e.clientY - r.top) / r.height - .5) * 26;
+    rollT = ((e.clientX - r.left) / r.width - .5) * 18;
+  });
+  box.addEventListener('pointerleave', () => { tiltT = 64; rollT = 0; });
+  const gyro = $('#gyroBtn');
+  if ('DeviceOrientationEvent' in window && matchMedia('(pointer: coarse)').matches) {
+    gyro.hidden = false;
+    gyro.addEventListener('click', async () => {
+      try { if (typeof DeviceOrientationEvent.requestPermission === 'function' && (await DeviceOrientationEvent.requestPermission()) !== 'granted') return; } catch (e) { return; }
+      gyro.setAttribute('aria-pressed', 'true'); gyro.classList.add('primary');
+      addEventListener('deviceorientation', (e) => {
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        tiltT = 64 + clamp(((e.beta || 45) - 45) * .5, -14, 14);
+        rollT = clamp((e.gamma || 0) * .4, -12, 12);
+      });
+    });
+  }
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!paused) t += dt;
+    tilt += (tiltT - tilt) * .08; roll += (rollT - roll) * .08;
+    const W = box.clientWidth, H = box.clientHeight, cx = W / 2, cy = H / 2;
+    const tr = tilt * Math.PI / 180, cr = Math.cos(roll * Math.PI / 180), sr = Math.sin(roll * Math.PI / 180);
+    rings.forEach((r, i) => {
+      const R = r.r * W, e = ringEls[i];
+      e.style.width = 2 * R + 'px'; e.style.height = 2 * R * Math.cos(tr) + 'px';
+      e.style.transform = `translate(-50%,-50%) rotate(${roll}deg)`;
+    });
+    const cs = .17 * W;
+    Object.assign(core.style, { width: cs + 'px', height: cs + 'px', left: cx - cs / 2 + 'px', top: cy - cs / 2 + 'px', fontSize: cs * .2 + 'px' });
+    for (const n of nodes) {
+      const r = rings[n.ri], R = r.r * W, a = n.a0 + r.w * t;
+      const x = R * Math.cos(a), y = R * Math.sin(a) * Math.cos(tr), z = R * Math.sin(a) * Math.sin(tr);
+      const X = x * cr - y * sr, Y = x * sr + y * cr, p = 900 / (900 - z), s = r.size * W;
+      const st = n.b.style;
+      st.width = st.height = s + 'px'; st.fontSize = s * .28 + 'px';
+      st.transform = `translate(${cx + X * p - s / 2}px,${cy + Y * p - s / 2}px) scale(${p.toFixed(3)})`;
+      st.zIndex = String(1000 + Math.round(z));
+      st.opacity = (.5 + .5 * ((z / R + 1) / 2)).toFixed(2);
+      st.filter = z < -R * .25 ? `blur(${((-z / R - .25) * 1.6).toFixed(2)}px)` : 'none';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- 2. Cycle QA en anneaux ---------- */
+(function () {
+  const wrap = $('#cyc'), group = $('.group', wrap), panel = $('#d2'), cap = $('#cap2'), list = $('#stages2');
+  const order = STAGES.map((s) => s[0]);
+  const ANG = { alm: 90, uft: 20, postman: 110, playwright: 200, k6: 290, sql: 65, kafka: 185, bash: 305, jira: 150, redmine: 330, github: 80, gitlab: 170, docker: 260, actions: 350 };
+  const ringEls = order.map(() => { const e = document.createElement('div'); e.className = 'ring'; group.appendChild(e); return e; });
+  const core = document.createElement('div'); core.className = 'core'; core.innerHTML = 'QA<br>LEAD'; core.style.left = '50%'; core.style.top = '50%'; group.appendChild(core);
+  const nodes = Object.keys(PRIMARY).map((id) => {
+    const b = makeNode(id); group.appendChild(b);
+    b.addEventListener('click', () => showDetail(panel, id, wrap));
+    return { b, id, ring: order.indexOf(PRIMARY[id]), ang: ANG[id] * Math.PI / 180 };
+  });
+  const btns = order.map((s, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'stage-btn';
+    b.innerHTML = `<b>${i + 1}</b>${stageName(s)}`;
+    b.addEventListener('click', () => { auto = false; setStage(i); });
+    list.appendChild(b); return b;
+  });
+  let current = -1, auto = true, timer = 0;
+  function setStage(i) {
+    current = i; const s = order[i];
+    ringEls.forEach((e, k) => e.classList.toggle('on', k === i));
+    btns.forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-pressed', String(k === i)); });
+    const hit = [];
+    nodes.forEach((n) => { const on = byId(n.id).st.includes(s); n.b.classList.toggle('on', on); n.b.classList.toggle('dim', !on); if (on) hit.push(byId(n.id)); });
+    const used = hit.filter((x) => x.kind === 'used').map((x) => x.n), disc = hit.filter((x) => x.kind === 'discover').map((x) => x.n);
+    cap.innerHTML = `Étape ${i + 1} · ${stageName(s)}<small>${used.length ? 'En mission : ' + used.join(', ') : ''}${used.length && disc.length ? ' — ' : ''}${disc.length ? 'À découvrir : ' + disc.join(', ') : ''}</small>`;
+  }
+  $('#replay2').addEventListener('click', () => { auto = true; timer = 0; setStage(0); });
+  const tiltBtn = $('#tilt2'); let tiltT = 0, tilt = 0;
+  tiltBtn.addEventListener('click', () => { tiltT = tiltT ? 0 : 56; tiltBtn.setAttribute('aria-pressed', String(!!tiltT)); });
+  let a = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!paused) { a += dt * 3; if (auto) { timer += dt; if (timer > 2.6) { timer = 0; setStage((current + 1) % order.length); } } }
+    tilt += (tiltT - tilt) * .07;
+    const W = wrap.clientWidth, s = Math.max(28, .085 * W);
+    group.style.transform = `rotateX(${tilt}deg) rotateZ(${a}deg)`;
+    ringEls.forEach((e, i) => { const d = 2 * (.16 + i * .075) * W; Object.assign(e.style, { width: d + 'px', height: d + 'px', marginLeft: -d / 2 + 'px', marginTop: -d / 2 + 'px' }); });
+    const cs = .15 * W;
+    Object.assign(core.style, { width: cs + 'px', height: cs + 'px', marginLeft: -cs / 2 + 'px', marginTop: -cs / 2 + 'px', fontSize: cs * .2 + 'px', transform: `rotateZ(${-a}deg) rotateX(${-tilt}deg)` });
+    for (const n of nodes) {
+      const R = (.16 + n.ring * .075) * W, x = R * Math.cos(n.ang), y = R * Math.sin(n.ang), st = n.b.style;
+      Object.assign(st, { width: s + 'px', height: s + 'px', marginLeft: -s / 2 + 'px', marginTop: -s / 2 + 'px', fontSize: s * .28 + 'px' });
+      st.transform = `translate(${x}px,${y}px) rotateZ(${-a}deg) rotateX(${-tilt}deg)`;
+    }
+    requestAnimationFrame(frame);
+  }
+  setStage(0);
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- 3. Constellation ---------- */
+(function () {
+  const box = $('#cst'), svg = $('svg', box), panel = $('#d3'), cap = $('#cap3');
+  const order = STAGES.map((s) => s[0]);
+  const LINKS = [['alm', 'uft', 'main'], ['uft', 'sql', 'main'], ['sql', 'jira', 'main'], ['jira', 'gitlab', 'main'], ['alm', 'postman'], ['postman', 'sql'], ['kafka', 'jira'], ['bash', 'jira'], ['jira', 'redmine'], ['redmine', 'github'], ['uft', 'playwright', 'disc'], ['postman', 'k6', 'disc'], ['gitlab', 'actions', 'disc'], ['github', 'docker', 'disc']];
+  const PATH = ['alm', 'uft', 'sql', 'jira', 'gitlab'];
+  const cols = order.map((s) => Object.keys(PRIMARY).filter((id) => PRIMARY[id] === s).sort((x, y) => (byId(x).kind === 'discover') - (byId(y).kind === 'discover')));
+  const pos = {}, nodes = {};
+  const labels = order.map((s) => { const l = document.createElement('div'); l.className = 'col-label'; l.textContent = stageName(s); box.appendChild(l); return l; });
+  Object.keys(PRIMARY).forEach((id, i) => {
+    const holder = document.createElement('div'); holder.className = 'float'; holder.style.animationDelay = (-i * .7) + 's';
+    holder.style.position = 'absolute'; holder.style.left = '0'; holder.style.top = '0';
+    const b = makeNode(id); b.style.position = 'relative';
+    holder.appendChild(b); box.appendChild(holder); nodes[id] = { holder, b };
+    b.addEventListener('click', () => showDetail(panel, id, box));
+    const hot = (on) => {
+      svg.querySelectorAll('.lk').forEach((l) => { const linked = l.dataset.a === id || l.dataset.b === id; l.classList.toggle('hot', on && linked); l.classList.toggle('cold', on && !linked); });
+      const near = new Set([id]); LINKS.forEach(([a, c]) => { if (a === id) near.add(c); if (c === id) near.add(a); });
+      Object.entries(nodes).forEach(([k, n]) => n.b.classList.toggle('cold', on && !near.has(k)));
+    };
+    b.addEventListener('mouseenter', () => hot(true)); b.addEventListener('mouseleave', () => hot(false));
+    b.addEventListener('focus', () => hot(true)); b.addEventListener('blur', () => hot(false));
+  });
+  const NS = 'http://www.w3.org/2000/svg';
+  const lines = LINKS.map(([a, b, k]) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('class', 'lk' + (k ? ' ' + k : '')); l.dataset.a = a; l.dataset.b = b; svg.appendChild(l); return l; });
+  const path = document.createElementNS(NS, 'path'); path.setAttribute('fill', 'none'); svg.appendChild(path);
+  const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', '7'); dot.setAttribute('fill', '#2b0a3d'); dot.setAttribute('stroke', '#fff'); dot.setAttribute('stroke-width', '3'); svg.appendChild(dot);
+  let size = 52;
+  function layout() {
+    const W = box.clientWidth, horiz = W >= 600;
+    size = horiz ? 52 : 46;
+    const H = horiz ? 400 : order.length * 120 + 20;
+    box.style.height = H + 'px';
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    cols.forEach((ids, si) => {
+      ids.forEach((id, k) => {
+        const x = horiz ? (si + .5) / order.length * W : W * (k + 1) / (ids.length + 1);
+        const y = horiz ? 30 + (H - 30) * (k + 1) / (ids.length + 1) : 20 + (si + .5) / order.length * (H - 20) + 10;
+        pos[id] = { x, y };
+        const n = nodes[id]; Object.assign(n.b.style, { width: size + 'px', height: size + 'px', fontSize: size * .28 + 'px' });
+        n.holder.style.transform = `translate(${x - size / 2}px,${y - size / 2}px)`;
+      });
+      const l = labels[si];
+      if (horiz) { l.style.left = (si + .5) / order.length * W + 'px'; l.style.top = '4px'; }
+      else { l.style.left = W / 2 + 'px'; l.style.top = (20 + (si + .5) / order.length * (H - 20) + 10 - size / 2 - 22) + 'px'; }
+    });
+    lines.forEach((l) => { const a = pos[l.dataset.a], b = pos[l.dataset.b]; l.setAttribute('x1', a.x); l.setAttribute('y1', a.y); l.setAttribute('x2', b.x); l.setAttribute('y2', b.y); });
+    path.setAttribute('d', 'M' + PATH.map((id) => `${pos[id].x},${pos[id].y}`).join(' L'));
+  }
+  new ResizeObserver(layout).observe(box); layout();
+  let p = 0, last = performance.now(), step = -1;
+  const STEP_TXT = PATH.map((id) => `${stageName(PRIMARY[id])} · ${byId(id).n}`);
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!paused) p = (p + dt / 8) % 1;
+    const L = path.getTotalLength(); const pt = path.getPointAtLength(p * L);
+    dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+    let best = 0, bd = 1e9; PATH.forEach((id, i) => { const d = Math.hypot(pos[id].x - pt.x, pos[id].y - pt.y); if (d < bd) { bd = d; best = i; } });
+    if (bd < size * .7 && best !== step) {
+      step = best;
+      PATH.forEach((id, i) => nodes[id].b.classList.toggle('pulse', i === best));
+      cap.innerHTML = `${best + 1}/5 · ${STEP_TXT[best]}<small>Illustration de l’enchaînement d’une campagne, de la conception à la livraison.</small>`;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- 4. Bandes défilantes ---------- */
+(function () {
+  const panel = $('#d4');
+  const fill = (el, ids) => {
+    const one = ids.map((id) => { const it = byId(id); return `<button type="button" class="chip-btn${it.kind === 'discover' ? ' discover' : ''}" data-id="${id}"><span class="lg">${logoHTML(it)}</span>${it.n}</button>`; }).join('');
+    el.innerHTML = one + `<span aria-hidden="true" style="display:contents">${one.replace(/<button /g, '<button tabindex="-1" ')}</span>`;
+    el.querySelectorAll('.chip-btn').forEach((b) => b.addEventListener('click', () => {
+      showDetail(panel, b.dataset.id, document.body);
+      document.querySelectorAll('.chip-btn').forEach((x) => x.style.borderColor = x.dataset.id === b.dataset.id ? '#2b0a3d' : '');
+    }));
+  };
+  fill($('#band1'), ITEMS.filter((i) => i.kind !== 'discover').map((i) => i.id));
+  const disc = ITEMS.filter((i) => i.kind === 'discover').map((i) => i.id);
+  fill($('#band2'), disc.concat(disc));
+})();
+</script>
+</body>
+</html>

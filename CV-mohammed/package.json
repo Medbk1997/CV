@@ -1,0 +1,27 @@
+{
+  "name": "cv-mohammed",
+  "private": true,
+  "description": "Tests Playwright du portfolio et du CV HTML",
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "build:css": "tailwindcss -c tailwind.config.cjs -i tools/tailwind.input.css -o assets/css/tailwind.css --minify",
+    "screenshots": "node tools/screenshots.mjs",
+    "build:icons": "node tools/build-icons.mjs",
+    "build": "npm run build:css && npm run build:icons"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "1.65.0",
+    "esbuild": "0.25.12",
+    "lighthouse": "^13.6.0",
+    "lucide": "0.469.0",
+    "pdfjs-dist": "^6.5.438",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0",
+    "tailwindcss": "3.4.17"
+  }
+}

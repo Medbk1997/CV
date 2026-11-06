@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Outils — 4 créations</title>
+<link rel="stylesheet" href="../../assets/css/fonts.css">
+<style>
+:root{color-scheme:light;--ink:#2b0a3d;--text:#1c1326;--muted:#5b516b;--line:#e4e0ea;--soft:#f6f2f9;--accent:#8a5cb0}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;font-family:Ubuntu,Arial,sans-serif;color:var(--text)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.top{position:sticky;top:0;z-index:3000;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+@media(max-width:700px){.top{position:static}}
+.top h1{margin:0;font-size:17px;color:var(--ink)}
+.top nav{display:flex;gap:6px;flex-wrap:wrap}
+.pill,.btn{font:600 14px Ubuntu,Arial,sans-serif;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none;cursor:pointer}
+.btn[aria-pressed="true"],.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.on-dark{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25)}
+.btn.on-dark[aria-pressed="true"]{background:#fff;color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.intro{max-width:1160px;margin:0 auto;padding:28px 20px 0;color:var(--muted);line-height:1.6}
+.intro b{color:var(--ink)}
+section.proto{max-width:1160px;margin:0 auto;padding:44px 20px 28px;border-bottom:1px solid var(--line)}
+.head{display:flex;gap:14px;align-items:flex-start;margin-bottom:8px}
+.num{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+h2{margin:0;font-size:26px;color:var(--ink)}
+h2 small{font-size:14px;color:var(--accent);font-weight:500}
+.desc{margin:6px 0 0;color:var(--muted);line-height:1.55;max-width:780px}
+.pc{display:flex;flex-wrap:wrap;gap:8px 24px;margin:12px 0 18px 54px;font-size:14px;color:var(--muted)}
+.pc span b{color:var(--ink)}
+.area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:24px;align-items:start}
+@media(max-width:860px){.area{grid-template-columns:minmax(0,1fr)}.pc{margin-left:0}}
+.demo{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,#fbf9fd,#f1ebf7)}
+.demo.dark{background:radial-gradient(120% 90% at 50% 40%,#2a1240 0%,#140920 55%,#0b0612 100%);border-color:#2a1d3b;color:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.detail{border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;gap:14px;min-height:120px;background:#fff}
+.detail .d-logo{flex-shrink:0;width:52px;height:52px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;font:600 13px 'JetBrains Mono',monospace}
+.detail .d-logo svg,.detail .d-logo img{width:62%;height:62%;object-fit:contain}
+.detail p{margin:0 0 6px;line-height:1.5;font-size:14px}
+.d-title{font-weight:700;font-size:17px!important;color:var(--ink)}
+.d-cat{color:var(--muted)}
+.badge{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:2px;background:#ecfdf3;color:#05603a}
+.badge.discover{background:#fff7e6;color:#8a4b00}.badge.company{background:var(--soft);color:var(--ink)}.badge.training{background:#eef2ff;color:#3730a3}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px!important}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink);background:var(--soft)}
+.hint{color:var(--muted);font-size:14px}
+.caption{margin:12px 0 0;min-height:42px;font-size:15px;color:var(--ink);line-height:1.45}
+.caption small{display:block;color:var(--muted);font-size:13px}
+.node{position:absolute;left:0;top:0;padding:0;border-radius:50%;background:#fff;border:1px solid #ddd5e6;box-shadow:0 6px 18px rgba(43,10,61,.16);display:grid;place-items:center;cursor:pointer;font:600 12px 'JetBrains Mono',monospace;transition:box-shadow .25s,border-color .25s;will-change:transform}
+.node svg,.node img{width:62%;height:62%;object-fit:contain;pointer-events:none}
+.node span{pointer-events:none}
+.node.discover{border:1.5px dashed #a07fc0}
+.node.sel{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--accent),0 8px 22px rgba(43,10,61,.35)}
+.node.hot{box-shadow:0 0 0 4px rgba(195,169,217,.7),0 0 28px rgba(195,169,217,.8)}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* A — Sphère */
+#sph{position:relative;width:100%;max-width:560px;aspect-ratio:1;margin:0 auto;touch-action:pan-y;cursor:grab;user-select:none}
+#sph.grabbing{cursor:grabbing}
+/* B — Galaxie */
+#gal{position:relative;width:100%;aspect-ratio:4/3;min-height:300px;max-height:560px;touch-action:pan-y;user-select:none}
+.gal-bar{padding:0 16px 16px;position:relative;z-index:2000}.gal-ui{display:flex;flex-wrap:wrap;gap:6px}
+.gal-ui .btn{font-size:12.5px;padding:6px 11px}
+.gal-cap{margin:0 0 12px;min-height:44px;color:#d9cce6;font-size:14px;line-height:1.4}
+.gal-cap b{display:block;font-size:18px;color:#fff}
+/* C — Radar */
+#rad{position:relative;width:100%;max-width:560px;aspect-ratio:1;margin:0 auto}
+#rad svg{position:absolute;inset:0;width:100%;height:100%}
+.sweep{position:absolute;inset:6%;border-radius:50%;background:conic-gradient(from 0deg,rgba(138,92,176,0) 0deg,rgba(138,92,176,0) 300deg,rgba(138,92,176,.32) 360deg);pointer-events:none}
+#rad .node{transition:transform .35s,box-shadow .35s}
+#rad .node.ping{box-shadow:0 0 0 5px rgba(138,92,176,.35),0 0 26px rgba(138,92,176,.55)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+.legend div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.6;background:#fff}
+.legend b{color:var(--ink);display:block;font-size:13.5px}
+.ring-tag{display:inline-block;font-size:11px;border-radius:999px;padding:1px 7px;margin-left:4px}
+.rt0{background:#ecfdf3;color:#05603a}.rt1{background:#eef2ff;color:#3730a3}.rt2{background:#fff7e6;color:#8a4b00}
+/* D — Pipeline */
+#pipe{padding:18px;display:flex;gap:0;align-items:stretch;overflow-x:auto}
+.job{flex:1 1 0;min-width:170px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .3s,box-shadow .3s}
+.job.running{border-color:var(--accent);box-shadow:0 0 0 4px rgba(138,92,176,.15)}
+.job.passed{border-color:#86efac}
+.job-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:var(--ink)}
+.job-h small{display:block;font-weight:500;color:var(--muted);font-size:11px}
+.st{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:12px;border:2px solid #d4cddd;color:transparent}
+.st.run{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.st.ok{background:#16a34a;border-color:#16a34a;color:#fff}
+.st.skip{border-style:dashed;border-color:#c4a46a;color:#8a4b00;font-size:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.step{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;border:1px solid transparent;background:var(--soft);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;color:var(--text);width:100%}
+.step:hover{border-color:var(--line)}
+.step .lg{width:24px;height:24px;border-radius:7px;background:#fff;display:grid;place-items:center;flex-shrink:0;font:600 8px 'JetBrains Mono',monospace}
+.step .lg svg,.step .lg img{width:72%;height:72%;object-fit:contain}
+.step .nm{flex:1;min-width:0}
+.step.discover{background:#fff;border:1px dashed #d8c9e6;color:var(--muted)}
+.conn{flex:0 0 26px;align-self:center;height:3px;background:#e4e0ea;position:relative;border-radius:2px;overflow:hidden}
+.conn i{position:absolute;inset:0;width:0;background:var(--accent);transition:width .5s}
+.pipe-sum{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:0 18px 16px;font-size:14px;color:var(--ink)}
+.pipe-sum .ok{color:#15803d;font-weight:700}
+@media(max-width:860px){#pipe{flex-direction:column}.job{min-width:0}.conn{flex:0 0 22px;width:3px;height:auto;align-self:center}.conn i{width:100%!important;height:0;transition:height .5s}.conn.full i{height:100%}}
+body.paused .st.run{animation-play-state:paused}
+footer{max-width:1160px;margin:0 auto;padding:24px 20px 60px;color:var(--muted);font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Mon environnement et mes outils — 4 créations</h1>
+  <nav aria-label="Créations"><a class="pill" href="#pA">A · Sphère 3D</a><a class="pill" href="#pB">B · Galaxie 3D</a><a class="pill" href="#pC">C · Radar</a><a class="pill" href="#pD">D · Pipeline</a></nav>
+  <button class="btn" id="pauseAll" type="button" aria-pressed="false">Mettre en pause les animations</button>
+</div>
+<p class="intro">Inspirées de vos deux préférées, <b>l’orbite 3D</b> et <b>la constellation</b> : de la profondeur, du mouvement, des connexions. Toutes utilisent vos vraies données et restent légères (aucune bibliothèque externe). <b>Cliquez sur un logo</b> pour afficher sa fiche.</p>
+
+<section class="proto" id="pA">
+  <div class="head"><span class="num">A</span><div><h2>Sphère 3D interactive</h2><p class="desc">Vos outils posés sur un globe que l’on fait tourner <b>à la souris ou au doigt</b>, avec de l’inertie. Les arcs relient les outils qui travaillent ensemble ; une impulsion lumineuse parcourt la chaîne de conception à livraison. Survolez un outil pour allumer ses liens. Au clavier : cliquez sur le globe puis utilisez les flèches.</p></div></div>
+  <p class="pc"><span><b>+</b> très interactif, effet « wow » immédiat</span><span><b>+</b> fusionne 3D et connexions</span><span><b>−</b> les logos à l’arrière sont moins lisibles</span></p>
+  <div class="area">
+    <div><div class="demo"><div id="sph" tabindex="0" role="group" aria-label="Sphère des outils : glisser ou utiliser les flèches pour la faire tourner"><canvas aria-hidden="true"></canvas></div></div></div>
+    <div class="detail" id="dA"><p class="hint">Faites tourner le globe, puis cliquez sur un logo.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="pB">
+  <div class="head"><span class="num">B</span><div><h2>Galaxie 3D <small>— la fusion de vos deux préférées</small></h2><p class="desc">Chaque étape du cycle est un amas d’étoiles autour de votre mission ; des particules circulent en continu entre les outils liés. La caméra tourne lentement et suit la souris. <b>Cliquez sur une étape</b> : la caméra s’y rend et zoome.</p></div></div>
+  <p class="pc"><span><b>+</b> le plus immersif</span><span><b>+</b> la navigation par étape raconte votre méthode</span><span><b>−</b> le plus lourd à animer (reste fluide sur mobile récent)</span></p>
+  <div class="area">
+    <div><div class="demo dark"><div id="gal" role="group" aria-label="Galaxie des outils par étape du cycle QA"><canvas aria-hidden="true"></canvas></div><div class="gal-bar"><p class="gal-cap" id="galCap" aria-live="polite"></p><div class="gal-ui" id="galUi" role="group" aria-label="Étapes"></div></div></div></div>
+    <div class="detail" id="dB"><p class="hint">Cliquez sur une étape, puis sur un logo.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="pC">
+  <div class="head"><span class="num">C</span><div><h2>Radar technologique</h2><p class="desc">Un format bien connu des équipes tech (le « tech radar ») : quatre quartiers par domaine, trois cercles par niveau — <b>en mission</b>, <b>en formation</b>, <b>à découvrir</b>. Un faisceau balaie le radar et fait pulser chaque outil à son passage.</p></div></div>
+  <p class="pc"><span><b>+</b> très professionnel, lisible en un coup d’œil</span><span><b>+</b> distingue clairement maîtrise, formation et curiosité</span><span><b>−</b> moins « spectaculaire » que A ou B</span></p>
+  <div class="area">
+    <div><div class="demo"><div id="rad" role="group" aria-label="Radar des outils"><svg viewBox="0 0 400 400" aria-hidden="true"></svg><div class="sweep" id="sweep"></div></div></div><div class="legend" id="radLegend"></div></div>
+    <div class="detail" id="dC"><p class="hint">Cliquez sur un logo pour afficher sa fiche.</p></div>
+  </div>
+</section>
+
+<section class="proto" id="pD">
+  <div class="head"><span class="num">D</span><div><h2>Pipeline de recette</h2><p class="desc">Votre cycle QA présenté comme un pipeline d’intégration continue, le langage des équipes de développement : chaque étape est un « job », chaque outil une étape qui passe au vert. Les outils à découvrir apparaissent comme étapes prévues.</p></div></div>
+  <p class="pc"><span><b>+</b> parle immédiatement à un recruteur tech / QA</span><span><b>+</b> montre une méthode, pas une liste</span><span><b>−</b> c’est une illustration, pas un vrai pipeline de la mission</span></p>
+  <div class="area">
+    <div><div class="demo"><div id="pipe"></div><div class="pipe-sum" id="pipeSum" aria-live="polite"></div></div>
+      <div class="controls"><button class="btn primary" type="button" id="rerun">Relancer le pipeline</button></div></div>
+    <div class="detail" id="dD"><p class="hint">Cliquez sur une étape pour afficher sa fiche.</p></div>
+  </div>
+</section>
+<footer>Prototypes de travail, rien n’est encore intégré au portfolio. Vous pouvez aussi combiner, par exemple la galaxie (B) avec la légende du radar (C) pour que les outils restent lisibles sous forme de texte. Les liaisons entre outils (A, B) et le pipeline (D) illustrent l’enchaînement d’une campagne ; ils ne décrivent pas exactement la mission.</footer>
+
+<script>
+const D = {"TOOLS_USED":[{"n":"PostgreSQL","h":"4169E1","p":"M23.5594 14.7228a.5269.5269 0 0 0-.0563-.1191c-.139-.2632-.4768-.3418-1.0074-.2321-1.6533.3411-2.2935.1312-2.5256-.0191 1.342-2.0482 2.445-4.522 3.0411-6.8297.2714-1.0507.7982-3.5237.1222-4.7316a1.5641 1.5641 0 0 0-.1509-.235C21.6931.9086 19.8007.0248 17.5099.0005c-1.4947-.0158-2.7705.3461-3.1161.4794a9.449 9.449 0 0 0-.5159-.0816 8.044 8.044 0 0 0-1.3114-.1278c-1.1822-.0184-2.2038.2642-3.0498.8406-.8573-.3211-4.7888-1.645-7.2219.0788C.9359 2.1526.3086 3.8733.4302 6.3043c.0409.818.5069 3.334 1.2423 5.7436.4598 1.5065.9387 2.7019 1.4334 3.582.553.9942 1.1259 1.5933 1.7143 1.7895.4474.1491 1.1327.1441 1.8581-.7279.8012-.9635 1.5903-1.8258 1.9446-2.2069.4351.2355.9064.3625 1.39.3772a.0569.0569 0 0 0 .0004.0041 11.0312 11.0312 0 0 0-.2472.3054c-.3389.4302-.4094.5197-1.5002.7443-.3102.064-1.1344.2339-1.1464.8115-.0025.1224.0329.2309.0919.3268.2269.4231.9216.6097 1.015.6331 1.3345.3335 2.5044.092 3.3714-.6787-.017 2.231.0775 4.4174.3454 5.0874.2212.5529.7618 1.9045 2.4692 1.9043.2505 0 .5263-.0291.8296-.0941 1.7819-.3821 2.5557-1.1696 2.855-2.9059.1503-.8707.4016-2.8753.5388-4.1012.0169-.0703.0357-.1207.057-.1362.0007-.0005.0697-.0471.4272.0307a.3673.3673 0 0 0 .0443.0068l.2539.0223.0149.001c.8468.0384 1.9114-.1426 2.5312-.4308.6438-.2988 1.8057-1.0323 1.5951-1.6698zM2.371 11.8765c-.7435-2.4358-1.1779-4.8851-1.2123-5.5719-.1086-2.1714.4171-3.6829 1.5623-4.4927 1.8367-1.2986 4.8398-.5408 6.108-.13-.0032.0032-.0066.0061-.0098.0094-2.0238 2.044-1.9758 5.536-1.9708 5.7495-.0002.0823.0066.1989.0162.3593.0348.5873.0996 1.6804-.0735 2.9184-.1609 1.1504.1937 2.2764.9728 3.0892.0806.0841.1648.1631.2518.2374-.3468.3714-1.1004 1.1926-1.9025 2.1576-.5677.6825-.9597.5517-1.0886.5087-.3919-.1307-.813-.5871-1.2381-1.3223-.4796-.839-.9635-2.0317-1.4155-3.5126zm6.0072 5.0871c-.1711-.0428-.3271-.1132-.4322-.1772.0889-.0394.2374-.0902.4833-.1409 1.2833-.2641 1.4815-.4506 1.9143-1.0002.0992-.126.2116-.2687.3673-.4426a.3549.3549 0 0 0 .0737-.1298c.1708-.1513.2724-.1099.4369-.0417.156.0646.3078.26.3695.4752.0291.1016.0619.2945-.0452.4444-.9043 1.2658-2.2216 1.2494-3.1676 1.0128zm2.094-3.988-.0525.141c-.133.3566-.2567.6881-.3334 1.003-.6674-.0021-1.3168-.2872-1.8105-.8024-.6279-.6551-.9131-1.5664-.7825-2.5004.1828-1.3079.1153-2.4468.079-3.0586-.005-.0857-.0095-.1607-.0122-.2199.2957-.2621 1.6659-.9962 2.6429-.7724.4459.1022.7176.4057.8305.928.5846 2.7038.0774 3.8307-.3302 4.7363-.084.1866-.1633.3629-.2311.5454zm7.3637 4.5725c-.0169.1768-.0358.376-.0618.5959l-.146.4383a.3547.3547 0 0 0-.0182.1077c-.0059.4747-.054.6489-.115.8693-.0634.2292-.1353.4891-.1794 1.0575-.11 1.4143-.8782 2.2267-2.4172 2.5565-1.5155.3251-1.7843-.4968-2.0212-1.2217a6.5824 6.5824 0 0 0-.0769-.2266c-.2154-.5858-.1911-1.4119-.1574-2.5551.0165-.5612-.0249-1.9013-.3302-2.6462.0044-.2932.0106-.5909.019-.8918a.3529.3529 0 0 0-.0153-.1126 1.4927 1.4927 0 0 0-.0439-.208c-.1226-.4283-.4213-.7866-.7797-.9351-.1424-.059-.4038-.1672-.7178-.0869.067-.276.1831-.5875.309-.9249l.0529-.142c.0595-.16.134-.3257.213-.5012.4265-.9476 1.0106-2.2453.3766-5.1772-.2374-1.0981-1.0304-1.6343-2.2324-1.5098-.7207.0746-1.3799.3654-1.7088.5321a5.6716 5.6716 0 0 0-.1958.1041c.0918-1.1064.4386-3.1741 1.7357-4.4823a4.0306 4.0306 0 0 1 .3033-.276.3532.3532 0 0 0 .1447-.0644c.7524-.5706 1.6945-.8506 2.802-.8325.4091.0067.8017.0339 1.1742.081 1.939.3544 3.2439 1.4468 4.0359 2.3827.8143.9623 1.2552 1.9315 1.4312 2.4543-1.3232-.1346-2.2234.1268-2.6797.779-.9926 1.4189.543 4.1729 1.2811 5.4964.1353.2426.2522.4522.2889.5413.2403.5825.5515.9713.7787 1.2552.0696.087.1372.1714.1885.245-.4008.1155-1.1208.3825-1.0552 1.717-.0123.1563-.0423.4469-.0834.8148-.0461.2077-.0702.4603-.0994.7662zm.8905-1.6211c-.0405-.8316.2691-.9185.5967-1.0105a2.8566 2.8566 0 0 0 .135-.0406 1.202 1.202 0 0 0 .1342.103c.5703.3765 1.5823.4213 3.0068.1344-.2016.1769-.5189.3994-.9533.6011-.4098.1903-1.0957.333-1.7473.3636-.7197.0336-1.0859-.0807-1.1721-.151zm.5695-9.2712c-.0059.3508-.0542.6692-.1054 1.0017-.055.3576-.112.7274-.1264 1.1762-.0142.4368.0404.8909.0932 1.3301.1066.887.216 1.8003-.2075 2.7014a3.5272 3.5272 0 0 1-.1876-.3856c-.0527-.1276-.1669-.3326-.3251-.6162-.6156-1.1041-2.0574-3.6896-1.3193-4.7446.3795-.5427 1.3408-.5661 2.1781-.463zm.2284 7.0137a12.3762 12.3762 0 0 0-.0853-.1074l-.0355-.0444c.7262-1.1995.5842-2.3862.4578-3.4385-.0519-.4318-.1009-.8396-.0885-1.2226.0129-.4061.0666-.7543.1185-1.0911.0639-.415.1288-.8443.1109-1.3505.0134-.0531.0188-.1158.0118-.1902-.0457-.4855-.5999-1.938-1.7294-3.253-.6076-.7073-1.4896-1.4972-2.6889-2.0395.5251-.1066 1.2328-.2035 2.0244-.1859 2.0515.0456 3.6746.8135 4.8242 2.2824a.908.908 0 0 1 .0667.1002c.7231 1.3556-.2762 6.2751-2.9867 10.5405zm-8.8166-6.1162c-.025.1794-.3089.4225-.6211.4225a.5821.5821 0 0 1-.0809-.0056c-.1873-.026-.3765-.144-.5059-.3156-.0458-.0605-.1203-.178-.1055-.2844.0055-.0401.0261-.0985.0925-.1488.1182-.0894.3518-.1226.6096-.0867.3163.0441.6426.1938.6113.4186zm7.9305-.4114c.0111.0792-.049.201-.1531.3102-.0683.0717-.212.1961-.4079.2232a.5456.5456 0 0 1-.075.0052c-.2935 0-.5414-.2344-.5607-.3717-.024-.1765.2641-.3106.5611-.352.297-.0414.6111.0088.6356.1851z"},{"n":"Apache Kafka","h":"231F20","p":"M9.71 2.136a1.43 1.43 0 0 0-2.047 0h-.007a1.48 1.48 0 0 0-.421 1.042c0 .41.161.777.422 1.039l.007.007c.257.264.616.426 1.019.426.404 0 .766-.162 1.027-.426l.003-.007c.261-.262.421-.629.421-1.039 0-.408-.159-.777-.421-1.042H9.71zM8.683 22.295c.404 0 .766-.167 1.027-.429l.003-.008c.261-.261.421-.631.421-1.036 0-.41-.159-.778-.421-1.044H9.71a1.42 1.42 0 0 0-1.027-.432 1.4 1.4 0 0 0-1.02.432h-.007c-.26.266-.422.634-.422 1.044 0 .406.161.775.422 1.036l.007.008c.258.262.617.429 1.02.429zm7.89-4.462c.359-.096.683-.33.882-.684l.027-.052a1.47 1.47 0 0 0 .114-1.067 1.454 1.454 0 0 0-.675-.896l-.021-.014a1.425 1.425 0 0 0-1.078-.132c-.36.091-.684.335-.881.686-.2.349-.241.75-.146 1.119.099.363.33.691.675.896h.002c.346.203.737.239 1.101.144zm-6.405-7.342a2.083 2.083 0 0 0-1.485-.627c-.58 0-1.103.242-1.482.627-.378.385-.612.916-.612 1.507s.233 1.124.612 1.514a2.08 2.08 0 0 0 2.967 0c.379-.39.612-.923.612-1.514s-.233-1.122-.612-1.507zm-.835-2.51c.843.141 1.6.552 2.178 1.144h.004c.092.093.182.196.265.299l1.446-.851a3.176 3.176 0 0 1-.047-1.808 3.149 3.149 0 0 1 1.456-1.926l.025-.016a3.062 3.062 0 0 1 2.345-.306c.77.21 1.465.721 1.898 1.482v.002c.431.757.518 1.626.313 2.408a3.145 3.145 0 0 1-1.456 1.928l-.198.118h-.02a3.095 3.095 0 0 1-2.154.201 3.127 3.127 0 0 1-1.514-.944l-1.444.848a4.162 4.162 0 0 1 0 2.879l1.444.846c.413-.47.939-.789 1.514-.944a3.041 3.041 0 0 1 2.371.319l.048.023v.002a3.17 3.17 0 0 1 1.408 1.906 3.215 3.215 0 0 1-.313 2.405l-.026.053-.003-.005a3.147 3.147 0 0 1-1.867 1.436 3.096 3.096 0 0 1-2.371-.318v-.006a3.156 3.156 0 0 1-1.456-1.927 3.175 3.175 0 0 1 .047-1.805l-1.446-.848a3.905 3.905 0 0 1-.265.294l-.004.005a3.938 3.938 0 0 1-2.178 1.138v1.699a3.09 3.09 0 0 1 1.56.862l.002.004c.565.572.914 1.368.914 2.243 0 .873-.35 1.664-.914 2.239l-.002.009a3.1 3.1 0 0 1-2.21.931 3.1 3.1 0 0 1-2.206-.93h-.002v-.009a3.186 3.186 0 0 1-.916-2.239c0-.875.35-1.672.916-2.243v-.004h.002a3.1 3.1 0 0 1 1.558-.862v-1.699a3.926 3.926 0 0 1-2.176-1.138l-.006-.005a4.098 4.098 0 0 1-1.173-2.874c0-1.122.452-2.136 1.173-2.872h.006a3.947 3.947 0 0 1 2.176-1.144V6.289a3.137 3.137 0 0 1-1.558-.864h-.002v-.004a3.192 3.192 0 0 1-.916-2.243c0-.871.35-1.669.916-2.243l.002-.002A3.084 3.084 0 0 1 8.683 0c.861 0 1.641.355 2.21.932v.002h.002c.565.574.914 1.372.914 2.243 0 .876-.35 1.667-.914 2.243l-.002.005a3.142 3.142 0 0 1-1.56.864v1.692zm8.121-1.129l-.012-.019a1.452 1.452 0 0 0-.87-.668 1.43 1.43 0 0 0-1.103.146h.002c-.347.2-.58.529-.677.896-.095.365-.054.768.146 1.119l.007.009c.2.347.519.579.874.673.357.103.755.059 1.098-.144l.019-.009a1.47 1.47 0 0 0 .657-.885 1.493 1.493 0 0 0-.141-1.118"},{"n":"Postman","h":"FF6C37","p":"M13.527.099C6.955-.744.942 3.9.099 10.473c-.843 6.572 3.8 12.584 10.373 13.428 6.573.843 12.587-3.801 13.428-10.374C24.744 6.955 20.101.943 13.527.099zm2.471 7.485a.855.855 0 0 0-.593.25l-4.453 4.453-.307-.307-.643-.643c4.389-4.376 5.18-4.418 5.996-3.753zm-4.863 4.861l4.44-4.44a.62.62 0 1 1 .847.903l-4.699 4.125-.588-.588zm.33.694l-1.1.238a.06.06 0 0 1-.067-.032.06.06 0 0 1 .01-.073l.645-.645.512.512zm-2.803-.459l1.172-1.172.879.878-1.979.426a.074.074 0 0 1-.085-.039.072.072 0 0 1 .013-.093zm-3.646 6.058a.076.076 0 0 1-.069-.083.077.077 0 0 1 .022-.046h.002l.946-.946 1.222 1.222-2.123-.147zm2.425-1.256a.228.228 0 0 0-.117.256l.203.865a.125.125 0 0 1-.211.117h-.003l-.934-.934-.294-.295 3.762-3.758 1.82-.393.874.874c-1.255 1.102-2.971 2.201-5.1 3.268zm5.279-3.428h-.002l-.839-.839 4.699-4.125a.952.952 0 0 0 .119-.127c-.148 1.345-2.029 3.245-3.977 5.091zm3.657-6.46l-.003-.002a1.822 1.822 0 0 1 2.459-2.684l-1.61 1.613a.119.119 0 0 0 0 .169l1.247 1.247a1.817 1.817 0 0 1-2.093-.343zm2.578 0a1.714 1.714 0 0 1-.271.218h-.001l-1.207-1.207 1.533-1.533c.661.72.637 1.832-.054 2.522zM18.855 6.05a.143.143 0 0 0-.053.157.416.416 0 0 1-.053.45.14.14 0 0 0 .023.197.141.141 0 0 0 .084.03.14.14 0 0 0 .106-.05.691.691 0 0 0 .087-.751.138.138 0 0 0-.194-.033z"},{"n":"Jira","h":"0052CC","p":"M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0Z"},{"n":"Redmine","h":"B32024","p":"m1.092 15.088c.789.243 4.098 1.005 4.098 1.005.198.061.139.21.139.21-.228 1.798-.178 3.17-.178 3.644 0 .21-.153.18-.153.18h-4.83c-.209 0-.164-.19-.164-.19.04-.599.212-2.303.878-4.746 0 0 .033-.157.21-.103zm21.816 0c-.789.243-4.098 1.005-4.098 1.005-.198.061-.139.21-.139.21.228 1.798.178 3.17.178 3.644 0 .21.153.18.153.18h4.83c.21 0 .164-.19.164-.19-.04-.599-.212-2.303-.878-4.746 0 0-.034-.157-.21-.103zm-1.929-5.354-3.448 1.667c-.164.063-.082.212-.082.212.476 1.134.766 2.091.99 3.251.038.194.169.132.169.132l3.879-1.684s.116-.044.068-.193c-.172-.531-1.05-2.649-1.402-3.341 0 0-.062-.105-.174-.044zm-17.958 0 3.448 1.667c.164.063.082.212.082.212-.476 1.134-.766 2.091-.991 3.251-.037.194-.169.132-.169.132l-3.878-1.684s-.116-.044-.068-.193c.172-.531 1.05-2.649 1.402-3.341 0 0 .062-.105.174-.044zm4.085-4.368 2.302 2.681c.099.128-.032.222-.032.222-.923.498-1.59 1.25-2.161 2.111-.114.17-.236.046-.236.046l-2.917-2.184s-.126-.074-.016-.22c.854-1.134 1.63-1.934 2.871-2.689 0 0 .094-.089.189.033zm9.788 0-2.302 2.681c-.099.128.032.222.032.222.923.498 1.59 1.25 2.161 2.111.114.17.236.046.236.046l2.917-2.184s.126-.074.016-.22c-.854-1.134-1.63-1.934-2.871-2.689 0 0-.094-.089-.189.033zm-4.894 2.295c.388 0 1.105.037 1.444.093.177.03.221-.088.221-.088l1.449-3.028s.097-.114-.106-.188c-1.082-.396-1.657-.578-3.008-.578-1.335 0-1.926.182-3.008.578-.203.074-.106.188-.106.188l1.449 3.028s.044.118.221.088c.339-.056 1.056-.093 1.444-.093z"},{"n":"GitHub","h":"181717","p":"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"},{"n":"GitLab","h":"FC6D26","p":"m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z"},{"n":"Bash","h":"4EAA25","p":"M21.038,4.9l-7.577-4.498C13.009,0.134,12.505,0,12,0c-0.505,0-1.009,0.134-1.462,0.403L2.961,4.9 C2.057,5.437,1.5,6.429,1.5,7.503v8.995c0,1.073,0.557,2.066,1.462,2.603l7.577,4.497C10.991,23.866,11.495,24,12,24 c0.505,0,1.009-0.134,1.461-0.402l7.577-4.497c0.904-0.537,1.462-1.529,1.462-2.603V7.503C22.5,6.429,21.943,5.437,21.038,4.9z M15.17,18.946l0.013,0.646c0.001,0.078-0.05,0.167-0.111,0.198l-0.383,0.22c-0.061,0.031-0.111-0.007-0.112-0.085L14.57,19.29 c-0.328,0.136-0.66,0.169-0.872,0.084c-0.04-0.016-0.057-0.075-0.041-0.142l0.139-0.584c0.011-0.046,0.036-0.092,0.069-0.121 c0.012-0.011,0.024-0.02,0.036-0.026c0.022-0.011,0.043-0.014,0.062-0.006c0.229,0.077,0.521,0.041,0.802-0.101 c0.357-0.181,0.596-0.545,0.592-0.907c-0.003-0.328-0.181-0.465-0.613-0.468c-0.55,0.001-1.064-0.107-1.072-0.917 c-0.007-0.667,0.34-1.361,0.889-1.8l-0.007-0.652c-0.001-0.08,0.048-0.168,0.111-0.2l0.37-0.236 c0.061-0.031,0.111,0.007,0.112,0.087l0.006,0.653c0.273-0.109,0.511-0.138,0.726-0.088c0.047,0.012,0.067,0.076,0.048,0.151 l-0.144,0.578c-0.011,0.044-0.036,0.088-0.065,0.116c-0.012,0.012-0.025,0.021-0.038,0.028c-0.019,0.01-0.038,0.013-0.057,0.009 c-0.098-0.022-0.332-0.073-0.699,0.113c-0.385,0.195-0.52,0.53-0.517,0.778c0.003,0.297,0.155,0.387,0.681,0.396 c0.7,0.012,1.003,0.318,1.01,1.023C16.105,17.747,15.736,18.491,15.17,18.946z M19.143,17.859c0,0.06-0.008,0.116-0.058,0.145 l-1.916,1.164c-0.05,0.029-0.09,0.004-0.09-0.056v-0.494c0-0.06,0.037-0.093,0.087-0.122l1.887-1.129 c0.05-0.029,0.09-0.004,0.09,0.056V17.859z M20.459,6.797l-7.168,4.427c-0.894,0.523-1.553,1.109-1.553,2.187v8.833 c0,0.645,0.26,1.063,0.66,1.184c-0.131,0.023-0.264,0.039-0.398,0.039c-0.42,0-0.833-0.114-1.197-0.33L3.226,18.64 c-0.741-0.44-1.201-1.261-1.201-2.142V7.503c0-0.881,0.46-1.702,1.201-2.142l7.577-4.498c0.363-0.216,0.777-0.33,1.197-0.33 c0.419,0,0.833,0.114,1.197,0.33l7.577,4.498c0.624,0.371,1.046,1.013,1.164,1.732C21.686,6.557,21.12,6.411,20.459,6.797z"},{"n":"HP ALM","h":"0B6BCB","m":"ALM"},{"n":"UFT One","h":"E8590C","m":"UFT"}],"TOOLS_DISCOVER":[{"n":"Playwright","h":"2EAD33","m":"PW"},{"n":"Docker","h":"2496ED","p":"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"},{"n":"k6","h":"7D64FF","p":"M24 23.646H0L7.99 6.603l4.813 3.538L19.08.354Zm-8.8-3.681h.052a2.292 2.292 0 0 0 1.593-.64 2.088 2.088 0 0 0 .685-1.576 1.912 1.912 0 0 0-.66-1.511 2.008 2.008 0 0 0-1.37-.59h-.04a.716.716 0 0 0-.199.027l1.267-1.883-1.01-.705-.477.705-1.22 1.864c-.21.31-.386.582-.495.77-.112.2-.21.41-.29.625a1.942 1.942 0 0 0-.138.719 2.086 2.086 0 0 0 .676 1.558c.422.411.989.641 1.578.64Zm-5.365-2.027 1.398 1.978h1.496l-1.645-2.295 1.46-2.029-.97-.671-.427.565-1.314 1.853v-3.725l-1.31-1.068v7.37h1.31v-1.98Zm5.367.792a.963.963 0 1 1 0-1.927h.009a.941.941 0 0 1 .679.29.897.897 0 0 1 .29.668.978.978 0 0 1-.977.967Z"},{"n":"GitHub Actions","h":"2088FF","p":"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"}],"STAGES":[["besoin","Besoin et conception"],["exec","Exécution"],["donnees","Données et batchs"],["anomalies","Suivi des anomalies"],["livraison","Livraison"]],"MISSION":[{"id":"sogeti","kind":"company","n":"Sogeti","cat":"Employeur","st":[],"txt":"Mon employeur. Expérience chez Sogeti France sur la mission URSSAF en QA, automatisation de tests et pilotage des campagnes.","q":"Quelles sont ses missions chez Sogeti ?"},{"id":"urssaf","kind":"company","n":"URSSAF","cat":"Client de la mission","st":["besoin","exec","donnees","anomalies","livraison"],"txt":"Client de la mission : qualification fonctionnelle et technique, coordination des tests et reporting qualité.","q":"Quelles sont ses missions chez l’URSSAF ?"},{"id":"alm","kind":"used","n":"HP ALM","cat":"Gestion des tests","st":["besoin","anomalies"],"txt":"Gestion des tests et des anomalies."},{"id":"uft","kind":"used","n":"UFT One","cat":"Automatisation","st":["exec"],"txt":"Écriture et exécution de scripts d’automatisation fonctionnelle."},{"id":"postman","kind":"used","n":"Postman","cat":"Tests d’API","st":["exec"],"txt":"Tests d’API réguliers, en complément des tests fonctionnels."},{"id":"sql","kind":"used","n":"PostgreSQL","cat":"Données","st":["exec","donnees"],"txt":"Requêtes SQL pour vérifier les données et trouver des jeux de données de test."},{"id":"kafka","kind":"used","n":"Apache Kafka","cat":"Données","st":["donnees"],"txt":"Fait partie de l’environnement technique de mes tests."},{"id":"bash","kind":"used","n":"Bash","cat":"Scripts","st":["donnees"],"txt":"Scripts Bash pour analyser les traitements batch et les résultats de recette."},{"id":"jira","kind":"used","n":"Jira","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"redmine","kind":"used","n":"Redmine","cat":"Anomalies","st":["anomalies"],"txt":"Création et suivi des anomalies."},{"id":"github","kind":"used","n":"GitHub","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"gitlab","kind":"used","n":"GitLab","cat":"Versioning","st":["livraison"],"txt":"Versioning dans la chaîne de livraison."},{"id":"playwright","kind":"discover","n":"Playwright","cat":"Automatisation moderne","st":["exec"],"txt":"En formation : j’en ai les bases et je le pratique guidé par l’IA."},{"id":"docker","kind":"discover","n":"Docker","cat":"Environnements","st":["exec","livraison"],"txt":"À découvrir, pour des environnements de test reproductibles."},{"id":"k6","kind":"discover","n":"k6","cat":"Performance","st":["exec"],"txt":"À découvrir, pour les tests de performance."},{"id":"actions","kind":"discover","n":"GitHub Actions","cat":"Livraison continue","st":["livraison"],"txt":"À découvrir, pour lancer les tests automatiquement à chaque livraison."}]};
+const TOOLS = D.TOOLS_USED.concat(D.TOOLS_DISCOVER);
+const ITEMS = D.MISSION;
+const STAGES = D.STAGES;
+const $ = (s, r = document) => r.querySelector(s);
+const byId = (id) => ITEMS.find((m) => m.id === id);
+const stageName = (s) => (STAGES.find((x) => x[0] === s) || [s, s])[1];
+const PRIMARY = { alm: 'besoin', uft: 'exec', postman: 'exec', playwright: 'exec', k6: 'exec', sql: 'donnees', kafka: 'donnees', bash: 'donnees', jira: 'anomalies', redmine: 'anomalies', github: 'livraison', gitlab: 'livraison', docker: 'livraison', actions: 'livraison' };
+const LINKS = [['alm', 'uft', 'main'], ['uft', 'sql', 'main'], ['sql', 'jira', 'main'], ['jira', 'gitlab', 'main'], ['alm', 'postman'], ['postman', 'sql'], ['kafka', 'jira'], ['bash', 'jira'], ['jira', 'redmine'], ['redmine', 'github'], ['github', 'gitlab'], ['sql', 'kafka'], ['sql', 'bash'], ['uft', 'playwright', 'disc'], ['postman', 'k6', 'disc'], ['gitlab', 'actions', 'disc'], ['github', 'docker', 'disc']];
+const PATH = ['alm', 'uft', 'sql', 'jira', 'gitlab'];
+const TOOL_IDS = Object.keys(PRIMARY);
+let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function logoHTML(it) {
+  if (it.kind === 'company') return `<img src="../../assets/logos/${it.id}.png" alt="">`;
+  const t = TOOLS.find((x) => x.n === it.n);
+  if (t && t.p) return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#${t.h}" d="${t.p}"/></svg>`;
+  return `<span class="mono" style="color:#${t ? t.h : '2b0a3d'}">${t ? t.m : it.n.slice(0, 3)}</span>`;
+}
+function kindOf(it) { return it.kind === 'company' ? ['company', 'Organisation'] : it.id === 'playwright' ? ['training', 'En formation'] : it.kind === 'discover' ? ['discover', 'À découvrir'] : ['used', 'En mission']; }
+function makeNode(id) {
+  const it = byId(id), b = document.createElement('button');
+  b.type = 'button'; b.className = 'node' + (it.kind === 'discover' ? ' discover' : ''); b.dataset.id = id; b.title = it.n;
+  b.setAttribute('aria-label', `${it.n} — ${it.cat} (${kindOf(it)[1].toLowerCase()})`);
+  b.innerHTML = logoHTML(it); return b;
+}
+function showDetail(panel, id, scope) {
+  const it = byId(id), [k, label] = kindOf(it);
+  scope.querySelectorAll('.sel').forEach((n) => n.classList.remove('sel'));
+  scope.querySelectorAll(`[data-id="${id}"]`).forEach((n) => n.classList.add('sel'));
+  const st = it.st.map(stageName);
+  panel.innerHTML = `<div class="d-logo">${logoHTML(it)}</div><div><p class="d-title">${it.n}<span class="badge ${k}">${label}</span></p><p class="d-cat">${it.cat}</p><p>${it.txt}</p>${st.length ? `<p class="chips">${st.map((s) => `<span>${s}</span>`).join('')}</p>` : ''}</div>`;
+}
+const pauseBtn = $('#pauseAll');
+function syncPause() { document.body.classList.toggle('paused', paused); pauseBtn.setAttribute('aria-pressed', String(paused)); pauseBtn.textContent = paused ? 'Relancer les animations' : 'Mettre en pause les animations'; }
+pauseBtn.addEventListener('click', () => { paused = !paused; syncPause(); });
+syncPause();
+function fitCanvas(cv, el) {
+  const dpr = Math.min(2, devicePixelRatio || 1), w = el.clientWidth, h = el.clientHeight;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h); return { g, w, h };
+}
+// Matrices 3×3 (rotation)
+const mul = (a, b) => a.map((r, i) => [0, 1, 2].map((j) => r[0] * b[0][j] + r[1] * b[1][j] + r[2] * b[2][j]));
+const rotY = (t) => { const c = Math.cos(t), s = Math.sin(t); return [[c, 0, s], [0, 1, 0], [-s, 0, c]]; };
+const rotX = (t) => { const c = Math.cos(t), s = Math.sin(t); return [[1, 0, 0], [0, c, -s], [0, s, c]]; };
+const apply = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2], m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2], m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]];
+// Visibilité : on n’anime que ce qui est à l’écran
+const visible = new Set();
+const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id)), { rootMargin: '100px' });
+['pA', 'pB', 'pC', 'pD'].forEach((id) => io.observe(document.getElementById(id)));
+
+/* =========== A. Sphère 3D =========== */
+(function () {
+  const el = $('#sph'), cv = $('canvas', el), panel = $('#dA');
+  const ids = ['sogeti', 'urssaf'].concat(TOOL_IDS), N = ids.length;
+  const pts = ids.map((id, i) => { const y = 1 - 2 * (i + .5) / N, r = Math.sqrt(1 - y * y), p = i * Math.PI * (3 - Math.sqrt(5)); return { id, v: [Math.cos(p) * r, y, Math.sin(p) * r], b: makeNode(id) }; });
+  pts.forEach((p) => { el.appendChild(p.b); p.b.addEventListener('click', (e) => { if (moved) { e.preventDefault(); return; } showDetail(panel, p.id, el); }); p.b.addEventListener('mouseenter', () => hover = p.id); p.b.addEventListener('mouseleave', () => hover = null); p.b.addEventListener('focus', () => hover = p.id); p.b.addEventListener('blur', () => hover = null); });
+  const idx = Object.fromEntries(pts.map((p, i) => [p.id, i]));
+  let M = mul(rotX(-.35), rotY(.4)), vx = 0, vy = .25, drag = null, moved = false, hover = null, pulse = 0, last = performance.now();
+  el.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; moved = false; el.classList.add('grabbing'); });
+  addEventListener('pointermove', (e) => {
+    if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag = { x: e.clientX, y: e.clientY };
+    if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+    vy = dx * .012 * 60 / 60; vx = dy * .012; M = mul(rotX(-dy * .008), mul(rotY(dx * .008), M));
+  });
+  const end = () => { if (drag) { drag = null; el.classList.remove('grabbing'); setTimeout(() => moved = false, 50); } };
+  addEventListener('pointerup', end); addEventListener('pointercancel', end);
+  el.addEventListener('keydown', (e) => { const k = { ArrowLeft: [0, -.25], ArrowRight: [0, .25], ArrowUp: [-.25, 0], ArrowDown: [.25, 0] }[e.key]; if (k && e.target === el) { e.preventDefault(); M = mul(rotX(k[0]), mul(rotY(k[1]), M)); } });
+  const slerp = (a, b, t) => { const d = clamp(a[0] * b[0] + a[1] * b[1] + a[2] * b[2], -1, 1), w = Math.acos(d); if (w < 1e-4) return a; const s = Math.sin(w), k1 = Math.sin((1 - t) * w) / s, k2 = Math.sin(t * w) / s; return [a[0] * k1 + b[0] * k2, a[1] * k1 + b[1] * k2, a[2] * k1 + b[2] * k2]; };
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (visible.has('pA')) {
+      if (!drag && !paused) { vy += (.25 - vy) * .02; vx *= .95; M = mul(rotX(-vx * dt), mul(rotY(vy * dt), M)); pulse = (pulse + dt / 7) % 1; }
+      const { g, w, h } = fitCanvas(cv, el), cx = w / 2, cy = h / 2, R = w * .36, F = R * 3.2;
+      const proj = (v) => { const f = F / (F - v[2] * R); return [cx + v[0] * R * f, cy + v[1] * R * f, f, v[2]]; };
+      // halo central
+      const gr = g.createRadialGradient(cx, cy, 0, cx, cy, R * 1.15); gr.addColorStop(0, 'rgba(138,92,176,.20)'); gr.addColorStop(.7, 'rgba(138,92,176,.06)'); gr.addColorStop(1, 'rgba(138,92,176,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, R * 1.15, 0, 7); g.fill();
+      // grille du globe
+      g.lineWidth = 1;
+      const circle = (fn) => { let prev = null; for (let i = 0; i <= 48; i++) { const v = apply(M, fn(i / 48 * Math.PI * 2)), p = proj(v); if (prev) { g.strokeStyle = `rgba(43,10,61,${(.05 + .1 * ((v[2] + 1) / 2)).toFixed(3)})`; g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(p[0], p[1]); g.stroke(); } prev = p; } };
+      for (let m = 0; m < 6; m++) { const a = m * Math.PI / 6; circle((t) => [Math.cos(t) * Math.cos(a), Math.sin(t), Math.cos(t) * Math.sin(a)]); }
+      [-.5, 0, .5].forEach((y) => { const r = Math.sqrt(1 - y * y); circle((t) => [Math.cos(t) * r, y, Math.sin(t) * r]); });
+      // arcs
+      const rv = pts.map((p) => apply(M, p.v));
+      LINKS.forEach(([a, b, k]) => {
+        const A = rv[idx[a]], B = rv[idx[b]], on = hover && (a === hover || b === hover);
+        let prev = null;
+        for (let i = 0; i <= 18; i++) {
+          const v0 = slerp(A, B, i / 18), lift = 1 + .12 * Math.sin(Math.PI * i / 18), v = [v0[0] * lift, v0[1] * lift, v0[2] * lift], p = proj(v);
+          if (prev) { const depth = (v[2] / lift + 1) / 2; g.strokeStyle = on ? `rgba(43,10,61,${.35 + .6 * depth})` : k === 'main' ? `rgba(138,92,176,${.15 + .6 * depth})` : `rgba(138,92,176,${.06 + .3 * depth})`; g.lineWidth = on ? 2.6 : k === 'main' ? 2 : 1.2; if (k === 'disc') g.setLineDash([4, 4]); g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(p[0], p[1]); g.stroke(); g.setLineDash([]); }
+          prev = p;
+        }
+      });
+      // impulsion le long de la chaîne principale
+      const seg = pulse * (PATH.length - 1), si = Math.floor(seg), A = rv[idx[PATH[si]]], B = rv[idx[PATH[si + 1]]], tt = seg - si, v0 = slerp(A, B, tt), lift = 1 + .12 * Math.sin(Math.PI * tt), pp = proj([v0[0] * lift, v0[1] * lift, v0[2] * lift]);
+      const pg = g.createRadialGradient(pp[0], pp[1], 0, pp[0], pp[1], 16); pg.addColorStop(0, 'rgba(255,255,255,1)'); pg.addColorStop(.3, 'rgba(138,92,176,.9)'); pg.addColorStop(1, 'rgba(138,92,176,0)');
+      g.fillStyle = pg; g.beginPath(); g.arc(pp[0], pp[1], 16, 0, 7); g.fill();
+      // logos
+      pts.forEach((p, i) => {
+        const v = rv[i], q = proj(v), s = w * .105 * q[2], st = p.b.style, depth = (v[2] + 1) / 2;
+        st.width = st.height = w * .105 + 'px'; st.fontSize = w * .03 + 'px';
+        st.transform = `translate(${q[0] - w * .0525}px,${q[1] - w * .0525}px) scale(${q[2].toFixed(3)})`;
+        st.zIndex = String(1000 + Math.round(v[2] * 100)); st.opacity = (.35 + .65 * depth).toFixed(2);
+        st.filter = v[2] < -.2 ? `blur(${((-v[2] - .2) * 2).toFixed(2)}px)` : 'none';
+        p.b.classList.toggle('hot', !!hover && hover !== p.id && LINKS.some(([a, b]) => (a === hover && b === p.id) || (b === hover && a === p.id)));
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* =========== B. Galaxie 3D =========== */
+(function () {
+  const el = $('#gal'), cv = $('canvas', el), panel = $('#dB'), cap = $('#galCap'), ui = $('#galUi');
+  const order = STAGES.map((s) => s[0]);
+  const hash = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return ((h >>> 0) % 1000) / 1000; };
+  const P = {};
+  order.forEach((s, si) => {
+    const th = si / order.length * Math.PI * 2 - Math.PI / 2, C = [Math.cos(th) * 1.15, 0, Math.sin(th) * 1.15];
+    const ids = TOOL_IDS.filter((id) => PRIMARY[id] === s);
+    ids.forEach((id, k) => { const a = k / ids.length * Math.PI * 2 + si * 1.3, r = ids.length > 1 ? .36 : 0; P[id] = [C[0] + Math.cos(a) * r, (hash(id + 'y') - .5) * .5, C[2] + Math.sin(a) * r]; });
+    P['@' + s] = C;
+  });
+  P.sogeti = [-.14, -.05, 0]; P.urssaf = [.14, .05, 0];
+  const nodeIds = ['sogeti', 'urssaf'].concat(TOOL_IDS);
+  const nodes = nodeIds.map((id) => { const b = makeNode(id); el.appendChild(b); b.addEventListener('click', () => showDetail(panel, id, el)); b.addEventListener('mouseenter', () => hover = id); b.addEventListener('mouseleave', () => hover = null); return { id, b }; });
+  const stars = Array.from({ length: 160 }, (_, i) => { const u = hash('s' + i) * 2 - 1, t = hash('t' + i) * Math.PI * 2, r = 2.2 + hash('r' + i) * 2.5, q = Math.sqrt(1 - u * u); return [Math.cos(t) * q * r, u * r * .6, Math.sin(t) * q * r, .4 + hash('b' + i) * .6]; });
+  const parts = LINKS.flatMap(([a, b, k], i) => [0, 1].map((j) => ({ a, b, k, t: hash(a + b + j), sp: .12 + hash(b + a + j) * .14 })));
+  let yaw = 0, yawT = null, pitch = .62, zoom = 1, zoomT = 1, focus = -1, mx = 0, my = 0, hover = null, last = performance.now();
+  el.addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; const r = el.getBoundingClientRect(); mx = (e.clientX - r.left) / r.width - .5; my = (e.clientY - r.top) / r.height - .5; });
+  el.addEventListener('pointerleave', () => { mx = my = 0; });
+  const mkBtn = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn on-dark'; b.textContent = label; b.addEventListener('click', fn); ui.appendChild(b); return b; };
+  const btns = [mkBtn('Vue d’ensemble', () => setFocus(-1))].concat(order.map((s, i) => mkBtn(`${i + 1} · ${stageName(s)}`, () => setFocus(i))));
+  function setFocus(i) {
+    focus = i; btns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i + 1)));
+    if (i < 0) { zoomT = 1; yawT = null; cap.innerHTML = '<b>Votre environnement de mission</b>Au centre : Sogeti et l’URSSAF. Autour : un amas par étape du cycle QA.'; return; }
+    const th = i / order.length * Math.PI * 2 - Math.PI / 2; let target = -Math.PI / 2 - th; while (target - yaw > Math.PI) target -= 2 * Math.PI; while (target - yaw < -Math.PI) target += 2 * Math.PI;
+    yawT = target; zoomT = 1.55;
+    const s = order[i], list = TOOL_IDS.filter((id) => byId(id).st.includes(s)).map((id) => byId(id).n);
+    cap.innerHTML = `<b>${i + 1} · ${stageName(s)}</b>${list.join(' · ')}`;
+  }
+  setFocus(-1);
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (visible.has('pB')) {
+      if (!paused) { if (yawT === null) yaw += dt * .12; parts.forEach((p) => p.t = (p.t + dt * p.sp) % 1); }
+      if (yawT !== null) yaw += (yawT - yaw) * .06;
+      zoom += (zoomT - zoom) * .06;
+      const { g, w, h } = fitCanvas(cv, el), cx = w / 2, cy = h * .6, S = Math.min(w, h * 1.45) * .28 * zoom, F = 3.4;
+      const M = mul(rotX(pitch + my * .25), rotY(yaw + mx * .5));
+      const fc = focus >= 0 ? apply(M, P['@' + order[focus]]) : [0, 0, 0], off = focus >= 0 ? [fc[0], fc[1]] : [0, 0];
+      const proj = (v) => { const r = apply(M, v), f = F / (F - r[2]); return [cx + (r[0] * f - off[0] * F / (F - fc[2])) * S, cy + (r[1] * f - off[1] * F / (F - fc[2])) * S, f, r[2]]; };
+      // étoiles
+      stars.forEach((s) => { const p = proj(s); if (p[2] <= 0) return; g.fillStyle = `rgba(239,231,245,${(s[3] * .7 * clamp((p[3] + 4) / 6, .15, 1)).toFixed(3)})`; g.fillRect(p[0], p[1], 1.4 * p[2], 1.4 * p[2]); });
+      // disque galactique
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 90; i++) { const a = i / 90 * Math.PI * 2, p = proj([Math.cos(a) * 1.15, 0, Math.sin(a) * 1.15]); g.fillStyle = `rgba(138,92,176,${(.05 + .1 * (p[3] + 1) / 2).toFixed(3)})`; g.beginPath(); g.arc(p[0], p[1], 1.6, 0, 7); g.fill(); }
+      // halos des amas + noms
+      order.forEach((s, i) => { const p = proj(P['@' + s]), rr = S * .42 * p[2], gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], rr); const on = focus === i; gr.addColorStop(0, `rgba(160,127,192,${on ? .32 : .16})`); gr.addColorStop(1, 'rgba(160,127,192,0)'); g.fillStyle = gr; g.beginPath(); g.arc(p[0], p[1], rr, 0, 7); g.fill(); });
+      const core = proj([0, 0, 0]), cg = g.createRadialGradient(core[0], core[1], 0, core[0], core[1], S * .5); cg.addColorStop(0, 'rgba(255,255,255,.35)'); cg.addColorStop(.25, 'rgba(195,169,217,.22)'); cg.addColorStop(1, 'rgba(195,169,217,0)'); g.fillStyle = cg; g.beginPath(); g.arc(core[0], core[1], S * .5, 0, 7); g.fill();
+      // liens + particules
+      LINKS.forEach(([a, b, k]) => { const A = proj(P[a]), B = proj(P[b]), on = hover && (a === hover || b === hover); g.strokeStyle = on ? 'rgba(255,255,255,.9)' : k === 'main' ? 'rgba(195,169,217,.55)' : 'rgba(195,169,217,.22)'; g.lineWidth = on ? 2.2 : k === 'main' ? 1.6 : 1; if (k === 'disc') g.setLineDash([4, 5]); g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(B[0], B[1]); g.stroke(); g.setLineDash([]); });
+      parts.forEach((p) => { const A = P[p.a], B = P[p.b], v = [A[0] + (B[0] - A[0]) * p.t, A[1] + (B[1] - A[1]) * p.t, A[2] + (B[2] - A[2]) * p.t], q = proj(v), r = (p.k === 'main' ? 5 : 3.4) * q[2], gr = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], r * 2.4); gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.35, p.k === 'disc' ? 'rgba(251,191,36,.6)' : 'rgba(195,169,217,.75)'); gr.addColorStop(1, 'rgba(195,169,217,0)'); g.fillStyle = gr; g.beginPath(); g.arc(q[0], q[1], r * 2.4, 0, 7); g.fill(); });
+      g.restore();
+      g.font = '600 12px Ubuntu, Arial, sans-serif'; g.textAlign = 'center';
+      order.forEach((s, i) => { const p = proj(P['@' + s]); g.fillStyle = `rgba(239,231,245,${focus < 0 || focus === i ? .85 : .35})`; g.fillText(`${i + 1} · ${stageName(s)}`, p[0], p[1] - S * .5 * p[2]); });
+      // logos
+      const ns = clamp(Math.min(w, h) * .078, 28, 52);
+      nodes.forEach((n) => {
+        const q = proj(P[n.id]), st = n.b.style, stOf = PRIMARY[n.id], dim = focus >= 0 && stOf && !byId(n.id).st.includes(order[focus]);
+        st.width = st.height = ns + 'px'; st.fontSize = ns * .28 + 'px';
+        st.transform = `translate(${q[0] - ns / 2}px,${q[1] - ns / 2}px) scale(${(q[2] * (n.id === 'sogeti' || n.id === 'urssaf' ? .9 : 1)).toFixed(3)})`;
+        st.zIndex = String(1000 + Math.round(q[3] * 100)); st.opacity = (dim ? .22 : clamp(.45 + .55 * (q[3] + 1) / 2, .45, 1)).toFixed(2);
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* =========== C. Radar =========== */
+(function () {
+  const el = $('#rad'), svg = $('svg', el), panel = $('#dC'), sweep = $('#sweep'), legend = $('#radLegend');
+  const Q = [['Conception & anomalies', ['alm', 'jira', 'redmine']], ['Exécution & automatisation', ['uft', 'postman', 'playwright', 'k6']], ['Données & scripts', ['sql', 'kafka', 'bash']], ['Livraison & environnements', ['github', 'gitlab', 'docker', 'actions']]];
+  const ringOf = (id) => id === 'playwright' ? 1 : byId(id).kind === 'discover' ? 2 : 0;
+  const RINGS = [[0, 112, 'En mission'], [112, 146, 'En formation'], [146, 176, 'À découvrir']];
+  const NS = 'http://www.w3.org/2000/svg', add = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; };
+  add('circle', { cx: 200, cy: 200, r: 176, fill: '#fff', stroke: '#e4e0ea' });
+  [[146, '#faf7fc'], [112, '#f6f1fa']].forEach(([r, f]) => add('circle', { cx: 200, cy: 200, r, fill: f, stroke: '#e4e0ea' }));
+  add('line', { x1: 24, y1: 200, x2: 376, y2: 200, stroke: '#e4e0ea' }); add('line', { x1: 200, y1: 24, x2: 200, y2: 376, stroke: '#e4e0ea' });
+  RINGS.forEach(([a, b, label]) => { const t = add('text', { x: 204, y: 200 - (a + b) / 2 + 4, 'font-size': 9.5, fill: '#5b516b', 'font-family': 'Ubuntu, Arial' }); t.textContent = label; });
+  const corner = [[388, 20, 'end'], [388, 392, 'end'], [12, 392, 'start'], [12, 20, 'start']];
+  Q.forEach(([name], q) => { const [x, y, a] = corner[q]; const t = add('text', { x, y, 'font-size': 11, 'font-weight': 700, fill: '#2b0a3d', 'text-anchor': a, 'font-family': 'Ubuntu, Arial' }); t.textContent = name; });
+  const center = add('text', { x: 200, y: 196, 'font-size': 10, 'font-weight': 700, fill: '#2b0a3d', 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace' }); center.textContent = 'MISSION';
+  const center2 = add('text', { x: 200, y: 209, 'font-size': 9, fill: '#5b516b', 'text-anchor': 'middle', 'font-family': 'Ubuntu, Arial' }); center2.textContent = 'URSSAF · Sogeti';
+  const blips = [];
+  Q.forEach(([, ids], q) => {
+    const byRing = [0, 1, 2].map((r) => ids.filter((id) => ringOf(id) === r));
+    byRing.forEach((list, r) => list.forEach((id, k) => {
+      const [a0, a1] = [-90 + q * 90, q * 90], ang = a0 + (k + 1) / (list.length + 1) * (a1 - a0), [r0, r1] = RINGS[r], rad = r === 0 ? (k % 2 ? 88 : 58) : (r0 + r1) / 2;
+      const x = 200 + Math.cos(ang * Math.PI / 180) * rad, y = 200 + Math.sin(ang * Math.PI / 180) * rad;
+      const b = makeNode(id); el.appendChild(b); b.addEventListener('click', () => showDetail(panel, id, el));
+      blips.push({ id, b, x, y, ang: (ang + 360) % 360, ping: 0 });
+    }));
+  });
+  legend.innerHTML = Q.map(([name, ids]) => `<div><b>${name}</b>${ids.map((id) => `${byId(id).n}<span class="ring-tag rt${ringOf(id)}">${RINGS[ringOf(id)][2]}</span>`).join('<br>')}</div>`).join('');
+  let a = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (visible.has('pC')) {
+      if (!paused) a = (a + dt * 60) % 360;
+      sweep.style.transform = `rotate(${a}deg)`;
+      const W = el.clientWidth, k = W / 400, s = clamp(W * .085, 28, 46);
+      blips.forEach((p) => {
+        const diff = (a - 90 - p.ang + 720) % 360; // le faisceau (conic, origine en haut) passe sur l’outil
+        if (diff < 6 && !paused) p.ping = 1;
+        p.ping = Math.max(0, p.ping - dt * .6);
+        const st = p.b.style; st.width = st.height = s + 'px'; st.fontSize = s * .28 + 'px';
+        st.transform = `translate(${p.x * k - s / 2}px,${p.y * k - s / 2}px) scale(${(1 + .14 * p.ping).toFixed(3)})`;
+        p.b.classList.toggle('ping', p.ping > .35);
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* =========== D. Pipeline =========== */
+(function () {
+  const el = $('#pipe'), panel = $('#dD'), sum = $('#pipeSum');
+  const order = STAGES.map((s) => s[0]);
+  const jobs = order.map((s, i) => {
+    const ids = TOOL_IDS.filter((id) => PRIMARY[id] === s).sort((x, y) => (byId(x).kind === 'discover') - (byId(y).kind === 'discover'));
+    if (i > 0) { const c = document.createElement('div'); c.className = 'conn'; c.innerHTML = '<i></i>'; el.appendChild(c); }
+    const j = document.createElement('div'); j.className = 'job';
+    j.innerHTML = `<div class="job-h"><span>${stageName(s)}<small>Job ${i + 1}/5</small></span><span class="st"></span></div>`;
+    const steps = ids.map((id) => { const it = byId(id), b = document.createElement('button'); b.type = 'button'; b.className = 'step' + (it.kind === 'discover' ? ' discover' : ''); b.dataset.id = id; b.innerHTML = `<span class="lg">${logoHTML(it)}</span><span class="nm">${it.n}</span><span class="st"></span>`; b.addEventListener('click', () => showDetail(panel, id, el)); j.appendChild(b); return { id, b, st: b.lastElementChild, disc: it.kind === 'discover' }; });
+    el.appendChild(j);
+    return { j, st: j.querySelector('.job-h .st'), steps, conn: j.previousElementSibling };
+  });
+  const seq = []; jobs.forEach((job, i) => { seq.push({ job, start: true }); job.steps.forEach((s) => seq.push({ job, step: s })); seq.push({ job, end: true }); });
+  let pos = 0, acc = 0, elapsed = 0, done = false, hold = 0;
+  function reset() { pos = 0; acc = 0; elapsed = 0; done = false; hold = 0; jobs.forEach((j) => { j.j.className = 'job'; j.st.className = 'st'; j.st.textContent = ''; j.steps.forEach((s) => { s.st.className = 'st'; s.st.textContent = ''; }); if (j.conn && j.conn.classList.contains('conn')) { j.conn.classList.remove('full'); j.conn.firstChild.style.width = '0'; } }); sum.innerHTML = '<span>⏳ Pipeline en cours…</span>'; }
+  function stepOnce() {
+    const it = seq[pos]; if (!it) return;
+    if (it.start) { it.job.j.className = 'job running'; it.job.st.className = 'st run'; if (it.job.conn && it.job.conn.classList.contains('conn')) { it.job.conn.classList.add('full'); it.job.conn.firstChild.style.width = '100%'; } }
+    else if (it.step) { const p = seq[pos - 1]; if (p && p.step) finish(p.step); it.step.st.className = 'st run'; }
+    else if (it.end) { const p = seq[pos - 1]; if (p && p.step) finish(p.step); it.job.j.className = 'job passed'; it.job.st.className = 'st ok'; it.job.st.textContent = '✓'; }
+    pos++;
+    if (pos >= seq.length) { done = true; const used = TOOL_IDS.filter((id) => byId(id).kind === 'used').length; sum.innerHTML = `<span class="ok">✓ Pipeline réussi</span><span>${used} étapes en mission</span><span>4 étapes prévues (à découvrir / en formation)</span><span class="mono">durée ${elapsed.toFixed(1)} s</span>`; }
+  }
+  function finish(s) { if (s.disc) { s.st.className = 'st skip'; s.st.textContent = '…'; s.st.title = byId(s.id).id === 'playwright' ? 'En formation' : 'À découvrir'; } else { s.st.className = 'st ok'; s.st.textContent = '✓'; } }
+  $('#rerun').addEventListener('click', reset);
+  reset();
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (visible.has('pD') && !paused) {
+      if (!done) { elapsed += dt; acc += dt; if (acc > .55) { acc = 0; stepOnce(); } }
+      else { hold += dt; if (hold > 5) reset(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
